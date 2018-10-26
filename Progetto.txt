@@ -1,0 +1,12 @@
+Un attributed graph è un grafo con degli attributi per i suoi nodi, cioè coppie nome/valore. 
+Si assume che ogni nodo abbia un insieme discreto di attributi che possono essere quantitativi oppure categorici (nominali). 
+In [1] è descritto un algoritmo per la clusterizzazione (intesa come partizionamento) di attributed graph in clusters. 
+L'algoritmo consente di specificare quanto si voglia considerare rilevante la similarità dei nodi basata sui loro attributi oppure la similarità dei nodi basata sulla loro adiacenza nel grafo.
+
+Lo scopo di questo progetto è l'utilizzo del software fornito qui [2] per clusterizzare degli attributed graphs di grandi dimensioni 
+e la loro visualizzazione, in cui si suppone che l'utente voglia esplorare la distribuzione dei valori degli attributi tra i clusters.
+
+[1] Alessandro Baroni, Alessio Conte, Maurizio Patrignani, Salvatore Ruggieri. Efficiently Clustering Very Large Attributed Graphs. 
+In, Jana Diesner, Elena Ferrari, Guandong Xu, editors, International Conference on Advances in Social Network Analysis and Mining (ASONAM 2017), 
+IEEE/ACM, pages 369-376, 2017. Versione arXiv 
+[2] SToC software and DBLP dataset.
