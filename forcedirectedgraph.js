@@ -1,7 +1,16 @@
+var links = d3.csv("data/dblp-graph.csv").get(function(error,data){
+  console.log(data);
+})
+
+var nodes = d3.csv("data/dblp-attributes.csv").get(function(error,data){
+  console.log(data);
+})
+
+
 chart = {
-  const links = data.links.map(d => Object.create(d));
-  const nodes = data.nodes.map(d => Object.create(d));
-  const simulation = forceSimulation(nodes, links).on("tick", ticked);
+  //var links = data_links.map(d => Object.create(d));
+  //var nodes = data_nodes.map(d => Object.create(d));
+  var simulation = forceSimulation(nodes, links).on("tick", ticked);
 
   const svg = d3.select(DOM.svg(width, height))
       .attr("viewBox", [-width / 2, -height / 2, width, height]);
@@ -50,7 +59,8 @@ function forceSimulation(nodes, links) {
       .force("center", d3.forceCenter());
 }
 
-data = d3.json("https://gist.githubusercontent.com/mbostock/4062045/raw/5916d145c8c048a6e3086915a6be464467391c62/miserables.json")
+
+// data = d3.json("https://gist.githubusercontent.com/mbostock/4062045/raw/5916d145c8c048a6e3086915a6be464467391c62/miserables.json")
 
 height = 600
 
