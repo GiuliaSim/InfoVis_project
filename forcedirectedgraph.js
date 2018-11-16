@@ -7,7 +7,7 @@ var nodes = d3.csv("data/dblp-attributes.csv").get(function(error,data){
 })
 
 
-chart = {
+chart = function() {
   //var links = data_links.map(d => Object.create(d));
   //var nodes = data_nodes.map(d => Object.create(d));
   var simulation = forceSimulation(nodes, links).on("tick", ticked);
@@ -64,7 +64,7 @@ function forceSimulation(nodes, links) {
 
 height = 600
 
-color = {
+color =  function() {
   const scale = d3.scaleOrdinal(d3.schemeCategory10);
   return d => scale(d.group);
 }
