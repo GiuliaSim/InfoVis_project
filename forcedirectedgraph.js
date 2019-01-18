@@ -1,10 +1,20 @@
-var links = d3.csv("data/dblp-graph.csv").get(function(error,data){
+
+
+var dsv= d3.dsvFormat(";");
+
+// Load and (later, asynchronously) parse the data
+dsv.parse("data/dblp-graph.csv", function(error, data) {
+  console.log(data); // should log an array of parsed values
+});
+
+
+/*var links = d3.csv("data/dblp-graph.csv").get(function(data){
   console.log(data);
 })
 
-var nodes = d3.csv("data/dblp-attributes.csv").get(function(error,data){
+var nodes = d3.csv("data/dblp-attributes.csv").get(function(data){                      
   console.log(data);
-})
+})*/
 
 
 chart = function() {
