@@ -1,105 +1,122 @@
 
+ var canvas = document.querySelector("canvas"),
+     context = canvas.getContext("2d"),
+     width = canvas.width,
+     height = canvas.height;
 
-var dsv= d3.dsvFormat(";");
 
-// Load and (later, asynchronously) parse the data
-dsv.parse("data/dblp-graph.csv", function(error, data) {
-  console.log(data); // should log an array of parsed values
+var simulation = d3.forceSimulation()
+    .force("link", d3.forceLink().id(function(d) { return d.id; }))
+    .force("charge", d3.forceManyBody())
+    .force("center", d3.forceCenter(width / 2, height / 2));
+
+var community_id = 4;
+var communities = [];
+
+d3.text("data/out-communities-SToClustering.txt", function(error, text) {
+  textsplitted = text.split("\n");
+  for (var i=0; i<textsplitted.length; i++){
+    community = textsplitted[i].split(",").map(Number);
+    communities.push(community);
+  }
+  console.log(communities);
+
+function linkInCommunity(value) {
+  return communities[community_id].includes(value.source) && communities[community_id].includes(value.target);
+}
+
+function nodeInCommunity(value) {
+  return communities[community_id].includes(value.id);
+}
+
+var psv = d3.dsvFormat(";");
+
+d3.text("data/dblp-graph.csv")
+  .get(function(error, data) {
+    var rows = psv.parse(data);
+    var links = [];
+    for (var i=0; i<rows.length; i++){
+      links.push({
+        source: Number(rows[i].source),
+        target: Number(rows[i].target)
+      })
+    }
+    //console.log(links); 
+    var links_filtered = links.filter(linkInCommunity);
+
+    d3.text("data/dblp-attributes.csv")
+      .get(function(error, data) {
+        var rows = psv.parse(data);
+
+        var nodes = [];
+        for (var i=0; i<rows.length; i++){
+          nodes.push({
+            id: Number(rows[i].id)
+          })
+        }
+        //console.log(nodes);
+        var nodes_filtered = nodes.filter(nodeInCommunity);
+
+        simulation
+          .nodes(nodes_filtered)
+          .on("tick", ticked);
+
+        simulation.force("link")
+          .links(links_filtered);
+
+        d3.select(canvas)
+          .call(d3.drag()
+              .container(canvas)
+              .subject(dragsubject)
+              .on("start", dragstarted)
+              .on("drag", dragged)
+              .on("end", dragended));
+
+        function ticked() {
+          context.clearRect(0, 0, width, height);
+
+          context.beginPath();
+          links_filtered.forEach(drawLink);
+          context.strokeStyle = "#aaa";
+          context.stroke();
+
+          context.beginPath();
+          nodes_filtered.forEach(drawNode);
+          context.fill();
+          context.strokeStyle = "#fff";
+          context.stroke();
+        }
+
+        function dragsubject() {
+          return simulation.find(d3.event.x, d3.event.y);
+        }
+    });
+  });
 });
 
-
-/*var links = d3.csv("data/dblp-graph.csv").get(function(data){
-  console.log(data);
-})
-
-var nodes = d3.csv("data/dblp-attributes.csv").get(function(data){                      
-  console.log(data);
-})*/
-
-
-chart = function() {
-  //var links = data_links.map(d => Object.create(d));
-  //var nodes = data_nodes.map(d => Object.create(d));
-  var simulation = forceSimulation(nodes, links).on("tick", ticked);
-
-  const svg = d3.select(DOM.svg(width, height))
-      .attr("viewBox", [-width / 2, -height / 2, width, height]);
-
-  const link = svg.append("g")
-      .attr("stroke", "#999")
-      .attr("stroke-opacity", 0.6)
-    .selectAll("line")
-    .data(links)
-    .enter().append("line")
-      .attr("stroke-width", d => Math.sqrt(d.value));
-
-  const node = svg.append("g")
-      .attr("stroke", "#fff")
-      .attr("stroke-width", 1.5)
-    .selectAll("circle")
-    .data(nodes)
-    .enter().append("circle")
-      .attr("r", 5)
-      .attr("fill", "#00ccff")
-      .call(drag(simulation));
-
-  node.append("title")
-      .text(d => d.id);
-
-  function ticked() {
-    link
-        .attr("x1", d => d.source.x)
-        .attr("y1", d => d.source.y)
-        .attr("x2", d => d.target.x)
-        .attr("y2", d => d.target.y);
-    
-    node
-        .attr("cx", d => d.x)
-        .attr("cy", d => d.y);
-  }
-
-  return svg.node();
+function dragstarted() {
+  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+  d3.event.subject.fx = d3.event.subject.x;
+  d3.event.subject.fy = d3.event.subject.y;
 }
 
-
-function forceSimulation(nodes, links) {
-  return d3.forceSimulation(nodes)
-      .force("link", d3.forceLink(links).id(d => d.id))
-      .force("charge", d3.forceManyBody())
-      .force("center", d3.forceCenter());
+function dragged() {
+  d3.event.subject.fx = d3.event.x;
+  d3.event.subject.fy = d3.event.y;
 }
 
-
-// data = d3.json("https://gist.githubusercontent.com/mbostock/4062045/raw/5916d145c8c048a6e3086915a6be464467391c62/miserables.json")
-
-height = 600
-
-color =  function() {
-  const scale = d3.scaleOrdinal(d3.schemeCategory10);
-  return d => scale(d.group);
+function dragended() {
+  if (!d3.event.active) simulation.alphaTarget(0);
+  d3.event.subject.fx = null;
+  d3.event.subject.fy = null;
 }
 
-drag = simulation => {
-  
-  function dragstarted(d) {
-    if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-    d.fx = d.x;
-    d.fy = d.y;
-  }
-  
-  function dragged(d) {
-    d.fx = d3.event.x;
-    d.fy = d3.event.y;
-  }
-  
-  function dragended(d) {
-    if (!d3.event.active) simulation.alphaTarget(0);
-    d.fx = null;
-    d.fy = null;
-  }
-  
-  return d3.drag()
-      .on("start", dragstarted)
-      .on("drag", dragged)
-      .on("end", dragended);
+function drawLink(d) {
+  context.moveTo(d.source.x, d.source.y);
+  context.lineTo(d.target.x, d.target.y);
+}
+
+function drawNode(d) {
+  context.moveTo(d.x + 3, d.y);
+  context.arc(d.x, d.y, 3, 0, 2 * Math.PI);
 }
