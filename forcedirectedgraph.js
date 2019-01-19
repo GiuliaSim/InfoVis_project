@@ -1,95 +1,121 @@
-
+//Crea lo spazio dove viene inserito il grafo
  var canvas = document.querySelector("canvas"),
      context = canvas.getContext("2d"),
      width = canvas.width,
      height = canvas.height;
 
 
+//Inizializzazione del force graph
 var simulation = d3.forceSimulation()
     .force("link", d3.forceLink().id(function(d) { return d.id; }))
     .force("charge", d3.forceManyBody())
     .force("center", d3.forceCenter(width / 2, height / 2));
 
-var community_id = 4;
+//Comunità corrente visualizzata
+var community_id = 8;
+//Inizializzazione array di communities
 var communities = [];
 
 d3.text("data/out-communities-SToClustering.txt", function(error, text) {
+  //Viene popolato l'array delle communities identificate da SToC
   textsplitted = text.split("\n");
   for (var i=0; i<textsplitted.length; i++){
     community = textsplitted[i].split(",").map(Number);
     communities.push(community);
   }
-  console.log(communities);
 
-function linkInCommunity(value) {
-  return communities[community_id].includes(value.source) && communities[community_id].includes(value.target);
-}
-
-function nodeInCommunity(value) {
-  return communities[community_id].includes(value.id);
-}
-
-var psv = d3.dsvFormat(";");
-
-d3.text("data/dblp-graph.csv")
-  .get(function(error, data) {
-    var rows = psv.parse(data);
-    var links = [];
-    for (var i=0; i<rows.length; i++){
-      links.push({
-        source: Number(rows[i].source),
-        target: Number(rows[i].target)
-      })
+  //Le communities identificate vengono raggruppate a partire dal numero dei nodi che ne fanno parte. Il risultato è insierito nell'array cluserSizeDistr.
+  var groups = {};
+  for(var i=0; i<communities.length; i++){
+    var groupName = communities[i].length;
+    if (!groups[groupName]) {
+      groups[groupName] = [];
     }
-    //console.log(links); 
-    var links_filtered = links.filter(linkInCommunity);
+    groups[groupName].push(communities[i]);
+  }
+  clusterSizeDistr = [];
+  for (var groupName in groups) {
+    clusterSizeDistr.push({size: groupName, communities: groups[groupName]});
+  }
+  console.log(clusterSizeDistr);
 
-    d3.text("data/dblp-attributes.csv")
-      .get(function(error, data) {
-        var rows = psv.parse(data);
+  //Selezione dei link che fanno parte di una specifica community
+  function linkInCommunity(value) {
+    return communities[community_id].includes(value.source) && communities[community_id].includes(value.target);
+  }
+  //Selezione dei nodi che fanno parte di una specifica community
+  function nodeInCommunity(value) {
+    return communities[community_id].includes(value.id);
+  }
 
-        var nodes = [];
-        for (var i=0; i<rows.length; i++){
-          nodes.push({
-            id: Number(rows[i].id)
-          })
-        }
-        //console.log(nodes);
-        var nodes_filtered = nodes.filter(nodeInCommunity);
+  var psv = d3.dsvFormat(";");
 
-        simulation
-          .nodes(nodes_filtered)
-          .on("tick", ticked);
+  //Creazione dei link formati da un nodo source e un nodo target
+  d3.text("data/dblp-graph.csv")
+    .get(function(error, data) {
+      var rows = psv.parse(data);
+      var links = [];
+      for (var i=0; i<rows.length; i++){
+        links.push({
+          source: Number(rows[i].source),
+          target: Number(rows[i].target)
+        })
+      }
+      //console.log(links); 
+      
+      //Filtro sui link della community corrente
+      var links_filtered = links.filter(linkInCommunity);
 
-        simulation.force("link")
-          .links(links_filtered);
+      //Creazione dei nodi caratterizzati da un id
+      d3.text("data/dblp-attributes.csv")
+        .get(function(error, data) {
+          var rows = psv.parse(data);
 
-        d3.select(canvas)
-          .call(d3.drag()
+          var nodes = [];
+          for (var i=0; i<rows.length; i++){
+            nodes.push({
+              id: Number(rows[i].id)
+            })
+          }
+          //console.log(nodes);
+          
+          //Filtro sui nodi della community corrente
+          var nodes_filtered = nodes.filter(nodeInCommunity);
+
+          //Creazione del force graph 
+          simulation
+            .nodes(nodes_filtered)
+            .on("tick", ticked);
+
+          simulation.force("link")
+            .links(links_filtered);
+
+          d3.select(canvas)
+            .call(d3.drag()
               .container(canvas)
               .subject(dragsubject)
               .on("start", dragstarted)
               .on("drag", dragged)
               .on("end", dragended));
 
-        function ticked() {
-          context.clearRect(0, 0, width, height);
+          function ticked() {
+            context.clearRect(0, 0, width, height);
 
-          context.beginPath();
-          links_filtered.forEach(drawLink);
-          context.strokeStyle = "#aaa";
-          context.stroke();
+            context.beginPath();
+            links_filtered.forEach(drawLink);
+            context.strokeStyle = "#aaa";
+            context.stroke();
 
-          context.beginPath();
-          nodes_filtered.forEach(drawNode);
-          context.fill();
-          context.strokeStyle = "#fff";
-          context.stroke();
-        }
+            context.beginPath();
+            nodes_filtered.forEach(drawNode);
+            context.fill();
+            context.strokeStyle = "#fff";
+            context.stroke();
+          }
 
-        function dragsubject() {
-          return simulation.find(d3.event.x, d3.event.y);
-        }
+          function dragsubject() {
+            return simulation.find(d3.event.x, d3.event.y);
+          }
     });
   });
 });
