@@ -14,6 +14,8 @@ html, body {
 		svg {
 			margin:auto;
 			display:block;
+			flex-basis: 100%;
+  			min-width: 200px;
 		}
 		.circle-overlay {
 			font-size: 16px;
