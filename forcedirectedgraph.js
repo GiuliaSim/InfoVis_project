@@ -114,9 +114,9 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
               .call(d3.drag()
                 .container(canvas)
                 .subject(dragsubject)
-                .on("start", dragstarted)
-                .on("drag", dragged)
-                .on("end", dragended));
+                .on("start", dragstarted) //in svg ?
+                .on("drag", dragged)      //in svg ?
+                .on("end", dragended));   //in svg ?
 
             function ticked() {
               context.clearRect(0, 0, width, height);
