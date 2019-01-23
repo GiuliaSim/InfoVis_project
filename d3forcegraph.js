@@ -42,19 +42,19 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
   	//Le communities identificate vengono raggruppate a partire dal numero dei nodi che ne fanno parte. Il risultato è insierito nell'array cluserSizeDistr.
   	var groups = {};
   	for(var i=0; i<communities.length; i++){
-    	var groupName = communities[i].length;
-    	if (!groups[groupName]) {
-      		groups[groupName] = [];
+    	var size = communities[i].length;
+    	if (!groups[size]) {
+      		groups[size] = [];
     	}
-    	groups[groupName].push(communities[i]);
+    	groups[size].push(communities[i]);
   	}
   	var index = 0;
   	$("#comm_group").append("<option selected>Choose...</option>")
-  	for (var groupName in groups) {
-    	clusterSizeDistr.push({size: groupName, communities: groups[groupName]});
+  	for (var size in groups) {
+    	clusterSizeDistr.push({size: size, communities: groups[size]});
     	//Viene aggiunta la lista che rappresenta communities con una certa dimensione.
-    	//groups[groupName].length
-    	$("#comm_group").append("<option value=\""+index+"_commGroup\">"+ groupName +"</option>")
+    	//groups[size].length
+    	$("#comm_group").append("<option value=\""+index+"_commGroup\">"+ size +"</option>")
     	index++;
   	}
   	console.log(clusterSizeDistr);
