@@ -4,19 +4,10 @@ var svg = d3.select("svg"),
     width = +svg.node().getBoundingClientRect().width - margin.left - margin.right,
     height = +svg.node().getBoundingClientRect().height - margin.top - margin.bottom;
 
-// var g = svg.append("g")
-//     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-//Inizializzazione array di communities raggruppate per dimensione
-var clusterSizeDistr = [];
-
 //Inizzializzazzione array di nodi da visualizzare
 var nodes = [];
 
 var node, 
-    max_community_size = 0,
-    number_distinct_community = 0,
-    clusters,
     maxRadius = 0,
     padding = 1.5, // separation between same-color circles
     clusterPadding = 6; // separation between different-color circles
@@ -25,7 +16,7 @@ var node,
 var simulation = d3.forceSimulation();
 
 
-d3.text("data/out-communities-SToClustering.txt", function(error, text) {
+/*d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 	//Viene popolato l'array delle communities identificate da SToC
 	var communities = []
   	textsplitted = text.split("\n");
@@ -53,8 +44,8 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
     number_distinct_community = clusterSizeDistr.length; // number of distinct clusters
 
     // The largest node for each cluster.
-    clusters = new Array(number_distinct_community);
-
+    clusters = new Array(number_distinct_community);*/
+function visualizeCommunities(){
     var color = d3.scaleOrdinal(d3.schemeCategory20)
       .domain(d3.range(number_distinct_community));
 
@@ -70,7 +61,27 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
       .domain([1, max_community_size])
       .range([1, 30]);
 
-    for(var i=0; i<communities.length; i++){
+    for(var i=5; i<clusterSizeDistr.length; i++){
+      size = clusterSizeDistr[i].size;
+      for(var j=0; j<clusterSizeDistr[i].communities.length; j++){
+        var radius = r(size);
+        var cluster = clusterSizeDistr.findIndex((item) => item.size == size);
+        var node = {
+          size: size,
+          cluster: cluster,
+          radius: radius,
+          color: color(size),
+          category: x(cluster),
+          //cx: x(size),
+          //cy: height / 2
+        };
+        nodes.push(node);
+        d = {cluster: cluster, radius: radius};
+        if (!clusters[cluster]) clusters[cluster] = d;
+        if (radius > maxRadius) maxRadius = radius;
+      }
+    }
+    /*for(var i=0; i<communities.length; i++){
       size = communities[i].length;
       if(size > 5){
         var radius = r(size);
@@ -90,12 +101,12 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
         if (radius > maxRadius) maxRadius = radius;
       }
     }
-    console.log(nodes);
+    console.log(nodes);*/
 
     initializeDisplay();
     initializeSimulation();
-      
-});
+}   
+//});
 
 //////////// FORCE SIMULATION //////////// 
 

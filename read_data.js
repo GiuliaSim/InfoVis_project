@@ -78,7 +78,10 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
           	}
  			
  			//d3forcegraph.js
- 			createSelectSize();
+ 			//createSelectSize();
+
+ 			//communityLayout.js
+ 			visualizeCommunities();
 
     });
   });
