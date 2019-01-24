@@ -3,15 +3,6 @@ var svg = d3.select("svg"),
     width = +svg.node().getBoundingClientRect().width,
     height = +svg.node().getBoundingClientRect().height;
 
-//Inizializzazione array di communities raggruppate per dimensione
-var clusterSizeDistr = [];
-//Dimensione comunità corrente visualizzata
-var commGroupSize_id = 0;
-//Comunità corrente visualizzata
-var commGroup_id = 0;
-
-var graph;
-
 // elements for data join
 var link = svg.append("g").selectAll(".link"),
 	node = svg.append("g").selectAll(".node");
@@ -20,78 +11,21 @@ var nodes_filtered = [],
 
 //Selezione dei link che fanno parte di una specifica community
 function linkInCommunity(value) {
-	if(value.source.id){
-		return clusterSizeDistr[commGroupSize_id].communities[commGroup_id].includes(value.source.id) && clusterSizeDistr[commGroupSize_id].communities[commGroup_id].includes(value.target.id);
-	}
-	return clusterSizeDistr[commGroupSize_id].communities[commGroup_id].includes(value.source) && clusterSizeDistr[commGroupSize_id].communities[commGroup_id].includes(value.target);
+  var source = value.source.id ? value.source.id : value.source;
+  var target = value.target.id ? value.target.id : value.target;
+	return clusterSizeDistr[commGroupSize_id].communities[commGroup_id].includes(source) && clusterSizeDistr[commGroupSize_id].communities[commGroup_id].includes(target) && (source > target);
 }
 //Selezione dei nodi che fanno parte di una specifica community
 function nodeInCommunity(value) {
 	return clusterSizeDistr[commGroupSize_id].communities[commGroup_id].includes(value.id);
 }
 
-d3.text("data/out-communities-SToClustering.txt", function(error, text) {
-	//Viene popolato l'array delle communities identificate da SToC
-	var communities = []
-  	textsplitted = text.split("\n");
-  	for (var i=0; i<textsplitted.length; i++){
-    	community = textsplitted[i].split(",").map(Number);
-    	communities.push(community);
-  	}
-
-  	//Le communities identificate vengono raggruppate a partire dal numero dei nodi che ne fanno parte. Il risultato è insierito nell'array cluserSizeDistr.
-  	var groups = {};
-  	for(var i=0; i<communities.length; i++){
-    	var size = communities[i].length;
-    	if (!groups[size]) {
-      		groups[size] = [];
-    	}
-    	groups[size].push(communities[i]);
-  	}
-  	var index = 0;
-  	$("#comm_group").append("<option selected>Choose...</option>")
-  	for (var size in groups) {
-    	clusterSizeDistr.push({size: size, communities: groups[size]});
-    	//Viene aggiunta la lista che rappresenta communities con una certa dimensione.
-    	//groups[size].length
-    	$("#comm_group").append("<option value=\""+index+"_commGroup\">"+ size +"</option>")
-    	index++;
-  	}
-  	console.log(clusterSizeDistr);
-
-  	var psv = d3.dsvFormat(";");
-
-  	//Creazione dei link formati da un nodo source e un nodo target
-  	d3.text("data/dblp-graph.csv")
-    	.get(function(error, data) {
-      	var rows = psv.parse(data);
-      	var links = [];
-      	for (var i=0; i<rows.length; i++){
-        	links.push({
-          	source: Number(rows[i].source),
-          	target: Number(rows[i].target)
-        	})
-      	}
-      	//console.log(links); 
-      
-      	//Creazione dei nodi caratterizzati da un id
-      	d3.text("data/dblp-attributes.csv")
-        	.get(function(error, data) {
-          	var rows = psv.parse(data);
-      		var nodes = [];
-          	for (var i=0; i<rows.length; i++){
-            	nodes.push({
-              	id: Number(rows[i].id)
-            	})
-          	}
-          	//console.log(nodes);
-          	graph = {
-          		nodes: nodes,
-          		links: links
-          	}
-    });
-  });
-});
+function createSelectSize(){
+  $("#comm_group").append("<option selected>Choose...</option>")
+  for(var i=0;i<clusters.length;i++){
+    $("#comm_group").append("<option value=\""+clusters[i].cluster+"_commGroup\">"+ clusters[i].size +"</option>")
+  }
+}
 
 //////////// FORCE SIMULATION //////////// 
 
@@ -212,6 +146,7 @@ function initializeDisplay() {
 	            .on("start", dragstarted)
 	            .on("drag", dragged)
 	            .on("end", dragended))
+              //.on("click", click))
 	        .merge(node);
 
   	// node tooltip
