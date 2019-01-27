@@ -21,6 +21,7 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
     	community = textsplitted[i].split(",").map(Number);
     	communities.push(community);
   	}
+  	console.log(communities);
 
   	//Le communities identificate vengono raggruppate a partire dal numero dei nodi che ne fanno parte. Il risultato è insierito nell'array cluserSizeDistr.
   	var groups = {};
@@ -40,6 +41,8 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
     	if(!clusters[index]){ clusters[index] = {cluster: index, size: size} };
     	index++;
   	}
+
+  	console.log(clusterSizeDistr);
 
     number_distinct_community = clusterSizeDistr.length; // number of distinct clusters
 
