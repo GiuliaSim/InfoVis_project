@@ -6,19 +6,9 @@ function histogram(){
     .attr("transform", 
           "translate(" + margin.left + "," + margin.top + ")");
 
-  var x = d3.scalePow().exponent(0.5)
-            .domain([5000, max_community_size])
-            .rangeRound([1, width]);
   var y = d3.scalePow().exponent(0.5)
             .domain([0, max_community_count])
             .range([height, 0]);
-
-  /*var x = d3.scaleLinear()
-          .domain([0, max_community_size])
-          .rangeRound([0, width]);
-  var y = d3.scaleLinear()
-            .domain([0, max_community_count])
-            .range([height, 0]);*/
 
   // Define the div for the tooltip
   // var div = d3.select("body").append("div") 

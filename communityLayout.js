@@ -52,12 +52,6 @@ function initializeSimulation() {
 }
 
 function initializeForces() {
-  // var x = d3.scaleLinear()
-  //     .domain([0, number_distinct_community])
-  //     .range([100, width]);
-  var x = d3.scalePow().exponent(0.1)
-      .domain([1, 20])
-      .rangeRound([1, width]);
   // add forces and associate each with a name
   simulation
       .force('collision', d3.forceCollide().radius(function(d) {return d.radius}).iterations(2))
@@ -83,37 +77,20 @@ function initializeForces() {
 
 // apply new force properties
 function updateForces() {
-    var x = d3.scalePow().exponent(0.1)
-      .domain([1, 80])
-      .rangeRound([1, width]);
-
     simulation
       .force('collision', d3.forceCollide().radius(function(d) {return d.radius}))
       .force('x', d3.forceX().x(function(d) {
         return x(d.size);
-      }))
-      .force('y', d3.forceY().y(function(d) {
-        var max = height - margin.top - margin.bottom;
-        var min = margin.top + margin.bottom;
-        return Math.random() * (max - min) + min;
       }));
-    // get each force by name and update the properties
-    // simulation.force("center")
-    //     .x(function(d) {return x(d.size);})
-    //     .y(height * forceProperties.center.y);
-    // simulation.force("collide")
-    //     .strength(forceProperties.collide.strength * forceProperties.collide.enabled)
-    //     .radius(forceProperties.collide.radius)
-    //     .iterations(forceProperties.collide.iterations);
 
     // updates ignored until this is run
     // restarts the simulation (important if simulation has already slowed down)
     simulation.alphaTarget(0.3).restart();
 
     // add the x Axis
-  axisX = svg.append("g")
-    .attr("transform", "translate(0," + height + ")")
-    .call(d3.axisBottom(x));
+    axisX = svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
 }
 
 //////////// DISPLAY ////////////
