@@ -1,9 +1,3 @@
-//Crea lo spazio dove viene inserito il grafo
-var svg = d3.select("svg"),
-    margin = {top: 40, right: 40, bottom: 40, left: 40},
-    width = +svg.node().getBoundingClientRect().width - margin.left - margin.right,
-    height = +svg.node().getBoundingClientRect().height - margin.top - margin.bottom;
-
 //Inizzializzazzione array di nodi da visualizzare
 var nodes = [];
 
@@ -14,99 +8,39 @@ var node,
 
 // force simulator
 var simulation = d3.forceSimulation();
+var axisX;
 
-
-/*d3.text("data/out-communities-SToClustering.txt", function(error, text) {
-	//Viene popolato l'array delle communities identificate da SToC
-	var communities = []
-  	textsplitted = text.split("\n");
-  	for (var i=0; i<textsplitted.length; i++){
-    	community = textsplitted[i].split(",").map(Number);
-    	communities.push(community);
-  	}
-
-  	//Le communities identificate vengono raggruppate a partire dal numero dei nodi che ne fanno parte. Il risultato è insierito nell'array cluserSizeDistr.
-  	var groups = {};
-  	for(var i=0; i<communities.length; i++){
-    	var size = communities[i].length;
-      if(size > max_community_size) {
-          max_community_size = size;
-        }
-    	if (!groups[size]) {
-      		groups[size] = [];
-    	}
-    	groups[size].push(communities[i]);
-  	} 
-  	for (var size in groups) {
-    	clusterSizeDistr.push({size: size, communities: groups[size]});
-  	}
-
-    number_distinct_community = clusterSizeDistr.length; // number of distinct clusters
-
-    // The largest node for each cluster.
-    clusters = new Array(number_distinct_community);*/
 function visualizeCommunities(){
-    var color = d3.scaleOrdinal(d3.schemeCategory20)
-      .domain(d3.range(number_distinct_community));
+    initializeValues();
+    initializeDisplay();
+    initializeSimulation();
+} 
 
-    var sequentialScale = d3.scaleSequential()
-      .domain([0, number_distinct_community+1])
-      .interpolator(d3.interpolateRainbow);
-
-    var x = d3.scaleLinear()
-      .domain([0, number_distinct_community])
-      .range([0, width]);
+function initializeValues(){
+    nodes = [];
 
     var r = d3.scaleLog()
       .domain([1, max_community_size])
-      .range([1, 30]);
+      .range([1, 10]);
 
-    for(var i=5; i<clusterSizeDistr.length; i++){
+    for(var i=4; i<clusterSizeDistr.length; i++){
       size = clusterSizeDistr[i].size;
       for(var j=0; j<clusterSizeDistr[i].communities.length; j++){
         var radius = r(size);
+        //var radius = 2;
         var cluster = clusterSizeDistr.findIndex((item) => item.size == size);
         var node = {
           size: size,
           cluster: cluster,
-          radius: radius,
-          color: color(size),
-          category: x(cluster),
-          //cx: x(size),
-          //cy: height / 2
+          radius: radius
         };
         nodes.push(node);
         d = {cluster: cluster, radius: radius};
-        if (!clusters[cluster]) clusters[cluster] = d;
-        if (radius > maxRadius) maxRadius = radius;
+        if (!clusters[cluster]) { clusters[cluster] = d; }
+        if (radius > maxRadius) { maxRadius = radius; }
       }
     }
-    /*for(var i=0; i<communities.length; i++){
-      size = communities[i].length;
-      if(size > 5){
-        var radius = r(size);
-        var cluster = clusterSizeDistr.findIndex((item) => item.size == size);
-        var node = {
-          size: size,
-          cluster: cluster,
-          radius: radius,
-          color: color(size),
-          category: x(cluster),
-          //cx: x(size),
-          //cy: height / 2
-        };
-        nodes.push(node);
-        d = {cluster: cluster, radius: radius};
-        if (!clusters[cluster]) clusters[cluster] = d;
-        if (radius > maxRadius) maxRadius = radius;
-      }
-    }
-    console.log(nodes);*/
-
-    initializeDisplay();
-    initializeSimulation();
-}   
-//});
+} 
 
 //////////// FORCE SIMULATION //////////// 
 
@@ -117,42 +51,52 @@ function initializeSimulation() {
   simulation.on("tick", ticked);
 }
 
-// values for all forces
-forceProperties = {
-    center: {
-        x: 0.5,
-        y: height / 2
-    }
-}
-
 function initializeForces() {
+  // var x = d3.scaleLinear()
+  //     .domain([0, number_distinct_community])
+  //     .range([100, width]);
+  var x = d3.scalePow().exponent(0.1)
+      .domain([1, 20])
+      .rangeRound([1, width]);
+  // add forces and associate each with a name
+  simulation
+      .force('collision', d3.forceCollide().radius(function(d) {return d.radius}).iterations(2))
+      .force('x', d3.forceX().x(function(d) {
+        return x(d.size);
+      }))
+      .force('y', d3.forceY().y(function(d) {
+        var max = height - margin.top - margin.bottom;
+        var min = margin.top + margin.bottom;
+        return Math.random() * (max - min) + min;
+      }));
+      //.force('center', d3.forceCenter().y(height/2))
+      //.force("forceX", d3.forceX().x(function(d) {return d.cx}))
+      //.force("forceY", d3.forceY().y(function(d) {return d.cy}))
+      //.force("cluster", gravity)
+      //.force("gravity", gravity);
 
-  // var catScale = d3.scalePoint()
-  //       .domain([0, number_distinct_community])
-  //       .range([0, width])
-  //       .padding(0.5); // give some space at the outer edges
-
-    // add forces and associate each with a name
-    simulation
-        .force('collision', d3.forceCollide().radius(function(d) {return d.radius + 1.5}))
-        .force('x', d3.forceX().x(function(d) {
-          return d.category;
-        }))
-        .force('y', d3.forceY().y(function(d) {
-          return height/2;
-        }))
-        //.force('center', d3.forceCenter().y(height/2))
-        //.force("forceX", d3.forceX().x(function(d) {return d.cx}))
-        //.force("forceY", d3.forceY().y(function(d) {return d.cy}))
-        //.force("cluster", gravity)
-        //.force("gravity", gravity);
-
-    // apply properties to each of the forces
-    //updateForces();
+  // add the x Axis
+  axisX = svg.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x));
 }
 
 // apply new force properties
 function updateForces() {
+    var x = d3.scalePow().exponent(0.1)
+      .domain([1, 80])
+      .rangeRound([1, width]);
+
+    simulation
+      .force('collision', d3.forceCollide().radius(function(d) {return d.radius}))
+      .force('x', d3.forceX().x(function(d) {
+        return x(d.size);
+      }))
+      .force('y', d3.forceY().y(function(d) {
+        var max = height - margin.top - margin.bottom;
+        var min = margin.top + margin.bottom;
+        return Math.random() * (max - min) + min;
+      }));
     // get each force by name and update the properties
     // simulation.force("center")
     //     .x(function(d) {return x(d.size);})
@@ -164,7 +108,12 @@ function updateForces() {
 
     // updates ignored until this is run
     // restarts the simulation (important if simulation has already slowed down)
-    //simulation.alphaTarget(0.3).restart();
+    simulation.alphaTarget(0.3).restart();
+
+    // add the x Axis
+  axisX = svg.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x));
 }
 
 //////////// DISPLAY ////////////
@@ -172,14 +121,22 @@ function updateForces() {
 // generate the svg objects and force simulation
 function initializeDisplay() {
 
+  var color = d3.scaleOrdinal(d3.schemeCategory20)
+    .domain(d3.range(number_distinct_community));
+
+  var sequentialScale = d3.scaleSequential()
+    .domain([0, number_distinct_community+1])
+    .interpolator(d3.interpolateRainbow);
+
   node = svg.selectAll("circle")
       .data(nodes)
     .enter().append("circle")
       .attr("r", function(d) { return d.radius; })
-      .style("fill", function(d) { return d.color; })
+      .style("fill", function(d) { return color(d.cluster); })
 
   node.append("title")
     .text(function(d) { return d.size; });
+
 }
 
 function ticked() {
@@ -197,14 +154,15 @@ function gravity(alpha) {
   };
 }
 
-// update size-related forces
-d3.select(window).on("resize", function(){
-    width = +svg.node().getBoundingClientRect().width - margin.left - margin.right,
-    height = +svg.node().getBoundingClientRect().height - margin.top - margin.bottom;
-    updateForces();
-});
-
 //convenience function to update everything (run after UI input)
 function updateAll() {
     updateForces();
 }
+
+$('#inlineRadio2').click(function () {
+    svg.selectAll("*").remove();
+    initializeDisplay();
+    width = +svg.node().getBoundingClientRect().width - margin.left - margin.right,
+    height = +svg.node().getBoundingClientRect().height - margin.top - margin.bottom;
+    updateForces();
+});

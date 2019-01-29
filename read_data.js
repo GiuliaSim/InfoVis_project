@@ -6,22 +6,31 @@ var commGroupSize_id = 0;
 var commGroup_id = 0;
 
 var max_community_size = 0,
+    max_community_count = 0,
     number_distinct_community = 0,
     clusters = [];
+    communities = [];
 
 var graph;
+
+//Crea lo spazio dove viene inserito il grafo
+var svg = d3.select("svg"),
+    margin = {top: 40, right: 40, bottom: 40, left: 60},
+    width = +svg.node().getBoundingClientRect().width - margin.left - margin.right,
+    height = +svg.node().getBoundingClientRect().height - margin.top - margin.bottom;
+
 
 $(document).ready(function() {
 
 d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 	//Viene popolato l'array delle communities identificate da SToC
-	var communities = []
+	//var communities = []
   	textsplitted = text.split("\n");
   	for (var i=0; i<textsplitted.length; i++){
     	community = textsplitted[i].split(",").map(Number);
     	communities.push(community);
   	}
-  	console.log(communities);
+  	//console.log(communities);
 
   	//Le communities identificate vengono raggruppate a partire dal numero dei nodi che ne fanno parte. Il risultato è insierito nell'array cluserSizeDistr.
   	var groups = {};
@@ -37,12 +46,17 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
   	}
   	var index = 0
   	for (var size in groups) {
+  		var count = groups[size].length;
+  		if(count > max_community_count) {
+          max_community_count = count;
+        }
     	clusterSizeDistr.push({size: size, communities: groups[size]});
-    	if(!clusters[index]){ clusters[index] = {cluster: index, size: size} };
+    	if(!clusters[index]){ clusters[index] = {cluster: index, size: size, count: count} };
     	index++;
   	}
 
-  	console.log(clusterSizeDistr);
+  	//console.log(clusterSizeDistr);
+  	//console.log(clusters);
 
     number_distinct_community = clusterSizeDistr.length; // number of distinct clusters
 
@@ -79,14 +93,26 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
           		nodes: nodes,
           		links: links
           	}
- 			
+
  			//d3forcegraph.js
  			//createSelectSize();
 
  			//communityLayout.js
  			visualizeCommunities();
-
     });
   });
 });
+});
+
+// update size-related forces
+d3.select(window).on("resize", function(){
+  if($('input:radio[id="inlineRadio2"]')[0].checked){
+    axisX.remove();
+    width = +svg.node().getBoundingClientRect().width - margin.left - margin.right,
+    height = +svg.node().getBoundingClientRect().height - margin.top - margin.bottom;
+    updateForces();
+  }
+  if($('input:radio[id="inlineRadio1"]')[0].checked){
+    updateHistogram();
+  }
 });
