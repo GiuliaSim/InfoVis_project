@@ -7,7 +7,7 @@ function histogram(){
           "translate(" + margin.left + "," + margin.top + ")");
 
   var y = d3.scalePow().exponent(0.5)
-            .domain([0, max_community_count])
+            .domain([0, num_community])
             .range([height, 0]);
 
   // Define the div for the tooltip
@@ -46,8 +46,11 @@ function histogram(){
         d3.select(this).style("fill", "#315b7d");   
         div.transition()    
             .duration(200)    
-            .style("opacity", .9);    
-        div.html("<b>Size:</b> " + d[0] + "<br/>" + "<b>Count:</b> " + d.length)  
+            .style("opacity", .9); 
+        var min = d3.min(d);  
+        var max = d3.max(d);
+        var value = min != max ? min + "-" + max : max;  
+        div.html("<b>Size:</b> " + value + "<br/>" + "<b>Count:</b> " + d.length)  
             .style("left", (d3.event.pageX-20) + "px")   
             .style("top", (d3.event.pageY-70) + "px");  
         })          
