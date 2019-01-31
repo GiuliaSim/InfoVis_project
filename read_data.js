@@ -11,9 +11,22 @@ var max_community_size = 0, //dimensione massima di una community
     num_community, //numero di community
     clusters = [],
     communities = [],
+    dataProlific = [],
     axisX;
 
 var graph;
+
+// var prolificsCategory = {
+// 	100 : "high",
+// 	50 : "medium",
+// 	0 : "low"
+// };
+
+var prolificsCategory = [0,50,100];
+var colorProlific = "steelblue";
+var opacityProlific = d3.scaleLinear()
+						.domain([0,100])
+						.range([0.4,1]);
 
 //Crea lo spazio dove viene inserito il grafo
 var svg = d3.select("#svgID"),
@@ -32,7 +45,7 @@ var from = 0;
 var to = 80;
 var x = scales[scaleType]
     .domain([from, to])
-    .rangeRound([1, width]);
+    .rangeRound([margin.left, width+margin.left]);
 
 d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 	//Viene popolato l'array delle communities identificate da SToC
@@ -139,12 +152,42 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 				);
 
 
+			  clusterSizeDistr.forEach(function(c){
+			    var size = c.size;
+			    var low = 0,
+			        medium = 0,
+			        high = 0;
+
+			    c.communities.forEach(function(community){
+			      community.forEach(function(n){
+			        if(n>0){
+			          //graph.nodes[community].prolific 
+			          var nodeID = n - 1;
+			          switch(graph.nodes[nodeID].prolific) {
+			            case 0:
+			              low++;
+			              break;
+			            case 50:
+			              medium++;
+			              break;
+			            case 100:
+			              high++;
+			              break;
+			            default:
+			              // code block
+			          }
+			        }
+			      })
+			    })
+			    dataProlific.push({size: size, 0: low, 50: medium, 100: high});
+			  })
 
  			//d3forcegraph.js
  			//createSelectSize();
 
  			//communityLayout.js
  			visualizeCommunities();
+ 			//area();
     });
   });
 });
@@ -156,7 +199,7 @@ function changeRange(){
 	to = range[1];
 	x = scales[scaleType]
 	    .domain([from, to])
-	    .rangeRound([1, width]);
+	    .rangeRound([margin.left, width+margin.left]);
   	d3.select('p#value-range').text(range.map(d3.format(',d')).join('-'));
 	if($('input:radio[id="inlineRadio2"]')[0].checked){
 		if(axisX) {  axisX.remove(); }
@@ -164,6 +207,10 @@ function changeRange(){
 	}
 	if($('input:radio[id="inlineRadio1"]')[0].checked){
 		updateHistogram();
+	}
+	if($('input:radio[id="inlineRadio3"]')[0].checked){
+		if(axisX) {  axisX.remove(); }
+		updateArea();
 	}
 }
 

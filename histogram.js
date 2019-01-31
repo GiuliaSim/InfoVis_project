@@ -2,9 +2,8 @@
 var formatCount = d3.format(",.0f");
 
 function histogram(){
-  var g = svg.append("g")
-    .attr("transform", 
-          "translate(" + margin.left + "," + margin.top + ")");
+  //var g = svg.append("g")
+    //.attr("transform", "translate(0," + margin.top + ")");
 
   var y = d3.scalePow().exponent(0.5)
             .domain([0, num_community])
@@ -19,7 +18,7 @@ function histogram(){
   // set the parameters for the histogram
   var histogram = d3.histogram()
       .domain(x.domain())
-      .thresholds(x.ticks(80));
+      .thresholds(x.ticks(100));
 
   //var map = communities.map(function(d){return {size:d.length,nodes:d}});
   var map = communities.map(function(d){return d.length});
@@ -27,7 +26,7 @@ function histogram(){
   // group the data for the bars
   var bins = histogram(map);
     
-  var bar = g.selectAll(".bar")
+  var bar = svg.selectAll(".bar")
     .data(bins)
   .enter().append("g")
     .attr("class", "bar")
@@ -66,12 +65,12 @@ function histogram(){
 
 
     // add the x Axis
-    g.append("g")
-        .attr("transform", "translate(0," + height + ")")
+    svg.append("g")
+        .attr("transform", "translate("+ 0 +"," + height + ")")
         .call(d3.axisBottom(x));
 
     // text label for the x axis
-    g.append("text")             
+    svg.append("text")             
         .attr("class", "label")
         .attr("x", (width + margin.left) / 2)
         .attr("y", height + margin.top)
@@ -79,15 +78,16 @@ function histogram(){
         .text("Size");  
 
     // add the y Axis
-    g.append("g")
+    svg.append("g")
+        .attr("transform", "translate("+ margin.left +"," + 0 + ")")
         .call(d3.axisLeft(y));
 
     // text label for the y axis
-    g.append("text")
+    svg.append("text")
         .attr("class", "label")
         .attr("transform", "rotate(-90)")
-        .attr("y", 0 - margin.left)
-        .attr("x",0 - (height / 2))
+        .attr("y",  5)
+        .attr("x", 0 - (height / 2 ))
         .attr("dy", "1em")
         .attr("dy", "1em")
         .style("text-anchor", "middle")
