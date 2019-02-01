@@ -1,5 +1,6 @@
 //Inizzializzazzione array di nodi da visualizzare
 var nodes = [];
+var nodes_filtered = [];
 
 var node, 
     maxRadius = 0,
@@ -18,7 +19,6 @@ var node,
 
 // force simulator
 var simulation = d3.forceSimulation();
-//var axisX;
 
 function visualizeCommunities(){
     initializeValues();
@@ -28,14 +28,15 @@ function visualizeCommunities(){
 
 function initializeValues(){
     nodes = [];
+    nodes_filtered = [];
 
     var r = d3.scaleLog()
       .domain([1, max_community_size])
       .range([1, 10]);
 
-    for(var i=2; i<clusterSizeDistr.length; i++){
-      size = clusterSizeDistr[i].size;
-      for(var j=0; j<clusterSizeDistr[i].communities.length; j++){
+    communities.map(function(d){
+      var size = d.length;
+      //if(size > 3){
         var radius = r(size);
         //var radius = 2;
         var cluster = clusterSizeDistr.findIndex((item) => item.size == size);
@@ -48,15 +49,23 @@ function initializeValues(){
         d = {cluster: cluster, radius: radius};
         if (!clusters[cluster]) { clusters[cluster] = d; }
         if (radius > maxRadius) { maxRadius = radius; }
-      }
-    }
+      //}
+    });
+
+    // nodes_filtered = nodes.filter(function(d){
+    //   return d.size > from && d.size < to && d.size > 4;
+    // });
+
+    nodes_filtered = nodes.filter(function(d){
+      return d.size > 4;
+    });
 } 
 
 //////////// FORCE SIMULATION //////////// 
 
 // set up the simulation and event to update locations after each tick
 function initializeSimulation() {
-  simulation.nodes(nodes);
+  simulation.nodes(nodes_filtered);
   initializeForces();
   simulation.on("tick", ticked);
 }
@@ -85,6 +94,15 @@ function initializeForces() {
   axisX = svg.append("g")
     .attr("transform", "translate(0," + height + ")")
     .call(d3.axisBottom(x));
+
+  axisX.append("text")
+        .attr("x", (width + margin.left) / 2)
+        .attr("y", margin.top)
+        .attr("dx", "0.32em")
+        .attr("fill", "#000")
+        .attr("font-weight", "bold")
+        .attr("text-anchor", "start")
+        .text("Size");
 }
 
 // apply new force properties
@@ -103,6 +121,15 @@ function updateForces() {
     axisX = svg.append("g")
       .attr("transform", "translate(0," + height + ")")
       .call(d3.axisBottom(x));
+
+    axisX.append("text")
+        .attr("x", (width + margin.left) / 2)
+        .attr("y", margin.top)
+        .attr("dx", "0.32em")
+        .attr("fill", "#000")
+        .attr("font-weight", "bold")
+        .attr("text-anchor", "start")
+        .text("Size");
 }
 
 //////////// DISPLAY ////////////
@@ -116,8 +143,6 @@ function initializeDisplay() {
   var sequentialScale = d3.scaleSequential()
     .domain([0, number_distinct_community+1])
     .interpolator(d3.interpolateRainbow);
-
-  
 
   // create groups, links and nodes
   groups = svg.append('g').attr('class', 'groups');
@@ -152,7 +177,7 @@ function initializeDisplay() {
     .attr('opacity', 1);
 
   node = svg.selectAll("circle")
-      .data(nodes)
+      .data(nodes_filtered)
     .enter().append("circle")
       .attr("r", function(d) { return d.radius; })
       .style("fill", function(d) { return color(d.cluster); })
@@ -169,21 +194,6 @@ function ticked() {
   //updateGroups();
 }
 
-//convenience function to update everything (run after UI input)
-function updateAll() {
-    updateForces();
-}
-
-$('#inlineRadio2').click(function () {
-    svg.selectAll("*").remove();
-    initializeDisplay();
-    width = +svg.node().getBoundingClientRect().width - margin.left - margin.right,
-    height = +svg.node().getBoundingClientRect().height - margin.top - margin.bottom;
-    updateForces();
-});
-
-
-
 // select nodes of the cluster, retrieve its positions
 // and return the convex hull of the specified points
 // (3 points as minimum, otherwise returns null)
@@ -198,7 +208,7 @@ var polygonGenerator = function(groupId) {
 };
 
 
-
+//Crea area attorno ai cluster
 function updateGroups() {
   var cluster_filtered = clusters.filter(function(d) { return d.count > 2;});
   for(var i = 4; i<cluster_filtered.length;i++){

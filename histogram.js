@@ -20,7 +20,6 @@ function histogram(){
       .domain(x.domain())
       .thresholds(x.ticks(100));
 
-  //var map = communities.map(function(d){return {size:d.length,nodes:d}});
   var map = communities.map(function(d){return d.length});
     
   // group the data for the bars
@@ -37,7 +36,7 @@ function histogram(){
     .attr("x", 1)
     .attr("width", function(d) { 
       var diff = x(d.x1) - x(d.x0);
-      var value = diff > 0 ? diff - 1 : diff;
+      var value = diff > 0 ? diff - 0.8 : diff;
       return value; 
     })
     .attr("height", function(d) { return height - y(d.length); })
@@ -67,36 +66,30 @@ function histogram(){
     // add the x Axis
     svg.append("g")
         .attr("transform", "translate("+ 0 +"," + height + ")")
-        .call(d3.axisBottom(x));
-
-    // text label for the x axis
-    svg.append("text")             
-        .attr("class", "label")
+        .call(d3.axisBottom(x))
+        .append("text")
         .attr("x", (width + margin.left) / 2)
-        .attr("y", height + margin.top)
-        .style("text-anchor", "middle")
-        .text("Size");  
+        .attr("y", margin.top)
+        .attr("dx", "0.32em")
+        .attr("fill", "#000")
+        .attr("font-weight", "bold")
+        .attr("text-anchor", "start")
+        .text("Size");
 
     // add the y Axis
     svg.append("g")
         .attr("transform", "translate("+ margin.left +"," + 0 + ")")
-        .call(d3.axisLeft(y));
-
-    // text label for the y axis
-    svg.append("text")
-        .attr("class", "label")
+        .call(d3.axisLeft(y))
+        .append("text")
         .attr("transform", "rotate(-90)")
-        .attr("y",  5)
-        .attr("x", 0 - (height / 2 ))
-        .attr("dy", "1em")
-        .attr("dy", "1em")
-        .style("text-anchor", "middle")
-        .text("Count");  
-} 
-
-$('#inlineRadio1').click(function () {
-    updateHistogram();
-});
+        .attr("y", 15 - (margin.left))
+        .attr("x", 0 - (height / 2))
+        .attr("dy", "0.32em")
+        .attr("fill", "#000")
+        .attr("font-weight", "bold")
+        .attr("text-anchor", "middle")
+        .text("Count");
+}
 
 function updateHistogram(){
   svg.selectAll("*").remove();
