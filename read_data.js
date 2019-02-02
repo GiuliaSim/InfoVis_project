@@ -35,7 +35,7 @@ var svg = d3.select("#svgID"),
 
 var slider, svgSlider, sliderRange;
 var scales = {
-        sqrt:   d3.scalePow().exponent(0.5),
+        sqrt:   d3.scalePow().exponent(0.2),
         linear: d3.scaleLinear(),
         power2: d3.scalePow().exponent(2)
     };
@@ -53,39 +53,6 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
   		var community = d.split(",").map(Number);
   		communities.push(community);
   	});
-
-  	num_community = communities.length;
-  	//console.log(communities);
-
-  	//Le communities identificate vengono raggruppate 
-  	//a partire dal numero dei nodi che ne fanno parte. 
-  	//Il risultato è insierito nell'array cluserSizeDistr.
-  	//Viene creato l'array di clusters identificati. 
-  	var groups = {};
-  	communities.map(function(d){
-    	var size = d.length;
-    	if (!groups[size]) {
-      		groups[size] = [];
-    	}
-    	groups[size].push(d);
-  	});
-  	max_community_size = d3.max(communities, function(d){return d.length;});
-
-  	var index = 0
-  	for (var size in groups) {
-  		var count = groups[size].length;
-  		if(count > max_community_count) {
-          max_community_count = count;
-        }
-    	clusterSizeDistr.push({size: size, communities: groups[size]});
-    	if(!clusters[index]){ clusters[index] = {cluster: index, size: size, count: count} };
-    	index++;
-  	}
-
-  	//console.log(clusterSizeDistr);
-  	//console.log(clusters);
-
-    number_distinct_community = clusterSizeDistr.length; // number of distinct clusters
 
   	var psv = d3.dsvFormat(";");
 
@@ -126,6 +93,46 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
           	var max = d3.max(nodes, function(d){return d.main_topic;})
           	console.log("main_topic. min:" + min + " max: " + max);
 
+          	var communities_attributes = [];
+ 			communities.map(function(community){
+ 				var community_attributes = [];
+ 				var size = community.length;
+ 				community.map(function(d){
+ 					if(d>0){
+				      	var nodeID = d - 1;
+				      	var main_topic = graph.nodes[nodeID].main_topic;
+				      	var prolific = graph.nodes[nodeID].prolific;
+				      	community_attributes.push({id: d, main_topic: main_topic, prolific: prolific});
+				  	}
+ 				});
+ 				communities_attributes.push({nodes: community_attributes, size:size});
+ 			});
+
+ 			//Le communities identificate vengono raggruppate 
+		  	//a partire dal numero dei nodi che ne fanno parte. 
+		  	//Il risultato è insierito nell'array cluserSizeDistr.
+ 			clusterSizeDistr = d3.nest()
+ 				.key(function(d){ return d.size; })
+ 				.rollup(function(d){ return d.map(function(x){ return x.nodes}); })
+ 				.entries(communities_attributes)
+ 				.map(function(d){
+ 					return {size: d.key, communities: d.value};
+ 				})
+ 				.sort(function(x, y){ return d3.ascending(Number(x.size), Number(y.size)); });
+
+		  	max_community_size = d3.max(communities, function(d){return d.length;});
+		  	num_community = communities.length;
+    		number_distinct_community = clusterSizeDistr.length; // number of distinct clusters
+    		max_community_count = d3.max(clusterSizeDistr, function(d){ return d.communities.length; });
+
+		  	//Viene creato l'array di clusters identificati. 
+    		clusterSizeDistr.map(function(d, i){clusters[i] = {cluster: i, size: d.size, count: d.communities.length};})
+
+		  	//console.log(communities);
+		  	//console.log(clusterSizeDistr);
+		  	//console.log(clusters);
+
+
  			//SLIDER AXIS X
 			svgSlider = d3.select("#sliderID"),
 			    marginSlider = {top: 20, right: 20, bottom: 20, left: 20},
@@ -150,6 +157,19 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 
 			slider.call(sliderRange);
 
+			// var prova = [];
+			// communities_attributes.map(function(c){
+			// 	var nodes = c.nodes;
+			// 	var size = c.size;
+			// 	var comm = d3.nest()
+			// 		.key(function(d){ return d.prolific; })
+			// 		.rollup(function(d){
+			// 			return d.length;
+			// 		})
+			// 		.entries(nodes);
+			// 	prova.push({size:size, comm })
+			// })
+
 			clusterSizeDistr.map(function(c){
 				var size = c.size;
 				var low = 0,
@@ -158,9 +178,7 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 
 				c.communities.map(function(community){
 				  community.map(function(n){
-				    if(n>0){
-				      var nodeID = n - 1;
-				      switch(graph.nodes[nodeID].prolific) {
+				      switch(n.prolific) {
 				        case 0:
 				          low++;
 				          break;
@@ -173,7 +191,6 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 				        default:
 				          // code block
 				      }
-				    }
 				  });
 				});
 				dataProlific.push({size: size, 0: low, 50: medium, 100: high});
@@ -232,8 +249,7 @@ $(document).ready(function(){
     $('input[type=number][name=rangeSliderX]').change(function(){
         from = $("#fromID").val();
 		to = $("#toID").val();
-        sliderRange.value()[0] = from;
-        sliderRange.value()[1] = to;
+		sliderRange.silentValue([from, to])
 		slider.call(sliderRange);
         updateAll();
     });

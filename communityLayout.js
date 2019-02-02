@@ -39,7 +39,7 @@ function initializeValues(){
       //if(size > 3){
         var radius = r(size);
         //var radius = 2;
-        var cluster = clusterSizeDistr.findIndex((item) => item.size == size);
+        var cluster = clusters.findIndex((item) => item.size == size);
         var node = {
           size: size,
           cluster: cluster,

@@ -19,49 +19,51 @@
   <script src="https://unpkg.com/d3-force-cluster@latest"></script>
 </head>
 <body>
-	<h1>Attributed Graph</h1>
 	<div class="container-fluid">
+		<div class="m-3"><h1>Attributed Graph</h1></div>
 		<fieldset class="form-group">
 				<div class="">
 				  <div class="card-body">
 					<div class="form-group">
-					  	<div class="form-check form-check-inline">
-						  <input class="form-check-input" type="radio" name="typeOptions" id="beeswarmID" value="option1"
+					  	<div class="custom-control custom-radio custom-control-inline">
+						  <input class="custom-control-input" type="radio" name="typeOptions" id="beeswarmID" value="option1"
 						  checked>
-						  <label class="form-check-label" for="beeswarmID">Beeswarm</label>
+						  <label class="custom-control-label" for="beeswarmID">Beeswarm</label>
 						</div>
-						<div class="form-check form-check-inline">
-						  <input class="form-check-input" type="radio" name="typeOptions" id="histogramID" value="option2">
-						  <label class="form-check-label" for="histogramID">Histogram</label>
+						<div class="custom-control custom-radio custom-control-inline">
+						  <input class="custom-control-input" type="radio" name="typeOptions" id="histogramID" value="option2">
+						  <label class="custom-control-label" for="histogramID">Histogram</label>
 						</div>
-						<div class="form-check form-check-inline">
-						  <input class="form-check-input" type="radio" name="typeOptions" id="stackBarChartID" value="option3">
-						  <label class="form-check-label" for="stackBarChartID">Stack Bar Chart</label>
+						<div class="custom-control custom-radio custom-control-inline">
+						  <input class="custom-control-input" type="radio" name="typeOptions" id="stackBarChartID" value="option3">
+						  <label class="custom-control-label" for="stackBarChartID">Stacked Bar</label>
 						</div>
 					</div>
 				  	<div class="card">
 					  	<div class="card-body">
-					  		<h5 class="card-title">Axis X</h5>
+					  		<h5 class="card-title"><b>Customize axis x</b></h5>
 							<div class="form-group" id="scaleOptionsID">
-							  	<div class="form-check form-check-inline">
-								  <input class="form-check-input" type="radio" name="scaleOptions" id="squareScale" value="sqrt" checked>
-								  <label class="form-check-label" for="squareScale">Square Root</label>
+							  	<div class="custom-control custom-radio custom-control-inline">
+								  <input class="custom-control-input" type="radio" name="scaleOptions" id="squareScale" value="sqrt" checked>
+								  <label class="custom-control-label" for="squareScale">Square Root</label>
 								</div>
-								<div class="form-check form-check-inline">
-								  <input class="form-check-input" type="radio" name="scaleOptions" id="linearScale" value="linear">
-								  <label class="form-check-label" for="linearScale">Linear</label>
+								<div class="custom-control custom-radio custom-control-inline">
+								  <input class="custom-control-input" type="radio" name="scaleOptions" id="linearScale" value="linear">
+								  <label class="custom-control-label" for="linearScale">Linear</label>
 								</div>
-								<div class="form-check form-check-inline">
-								  <input class="form-check-input" type="radio" name="scaleOptions" id="powerScale" value="power2">
-								  <label class="form-check-label" for="powerScale">Power2</label>
+								<div class="custom-control custom-radio custom-control-inline">
+								  <input class="custom-control-input" type="radio" name="scaleOptions" id="powerScale" value="power2">
+								  <label class="custom-control-label" for="powerScale">Power2</label>
 								</div>
 							</div>
 							<div class="input-group align-items-center">
-								<div class="input-group input-group-sm mb-3">
+								<div class="input-group input-group-sm mb-3 col-md-6">
 								  <div class="input-group-prepend">
 								    <span class="input-group-text">From</span>
 								  </div>
 								  <input type="number" class="form-control" id="fromID" name="rangeSliderX" min="0">
+								</div>
+								  <div class="input-group input-group-sm mb-3 col-md-6">
 								  <div class="input-group-prepend">
 								    <span class="input-group-text">To</span>
 								  </div>
