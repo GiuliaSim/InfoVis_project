@@ -35,7 +35,7 @@ var svg = d3.select("#svgID"),
 
 var slider, svgSlider, sliderRange;
 var scales = {
-        sqrt:   d3.scalePow().exponent(0.2),
+        sqrt:   d3.scalePow().exponent(0.5),
         linear: d3.scaleLinear(),
         power2: d3.scalePow().exponent(2)
     };
@@ -112,7 +112,8 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 		  	//a partire dal numero dei nodi che ne fanno parte. 
 		  	//Il risultato è insierito nell'array cluserSizeDistr.
  			clusterSizeDistr = d3.nest()
- 				.key(function(d){ return d.size; })
+ 				//.key(function(d){ return Number(d.size); }).sortKeys(d3.ascending)
+ 				.key(function(d){ return d.size; }).sortKeys(d3.ascending)
  				.rollup(function(d){ return d.map(function(x){ return x.nodes}); })
  				.entries(communities_attributes)
  				.map(function(d){
@@ -157,18 +158,58 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 
 			slider.call(sliderRange);
 
+
+			// var ppp = d3.nest()
+			// 	.key(function(d){ return d.size; })
+			// 	.key(function(d){ return d.nodes.map(function(x){ x.prolific; }); })
+			// 	//.rollup(function(d){ return d.length; })
+			// 	.entries(communities_attributes);
+
 			// var prova = [];
 			// communities_attributes.map(function(c){
 			// 	var nodes = c.nodes;
 			// 	var size = c.size;
-			// 	var comm = d3.nest()
+			// 	var low = 0;
+			// 	var medium = 0;
+			// 	var high = 0;
+			// 	var values = d3.nest()
 			// 		.key(function(d){ return d.prolific; })
 			// 		.rollup(function(d){
 			// 			return d.length;
 			// 		})
-			// 		.entries(nodes);
-			// 	prova.push({size:size, comm })
+			// 		.entries(nodes)
+			// 		.map(function(element){
+
+			// 		});
+			// 	values.forEach(function(element){
+			// 		switch (element.key){
+			// 			case "0":
+			// 	          low = element.value;
+			// 	          break;
+			// 	        case "50":
+			// 	          medium = element.value;
+			// 	          break;
+			// 	        case "100":
+			// 	          high = element.value;
+			// 	          break;
+			// 	        default:
+			// 		}
+			// 	})
+
+			// 	prova.push({size:size, low: low, medium: medium, high: high })
 			// })
+
+			// var p = d3.nest()
+			// 		.key(function(d){ return d.size; })
+			// 		.rollup(function(d){
+			// 			return {
+			// 				low: d3.sum(d, function(v) { return v.low; }),
+			// 				medium: d3.sum(d, function(v) { return v.medium; }),
+			// 				high: d3.sum(d, function(v) { return v.high; })
+			// 			};
+			// 		})
+			// 		.entries(prova)
+			// 		.sort(function(x, y){ return d3.ascending(Number(x.key), Number(y.key)); });
 
 			clusterSizeDistr.map(function(c){
 				var size = c.size;
@@ -195,6 +236,49 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 				});
 				dataProlific.push({size: size, 0: low, 50: medium, 100: high});
 			});
+
+
+			//Per ogni community vengono identificati i main_topics
+			//Il risultato viene inserito in main_topic_comm, oggetto con la seguente struttura
+			//size: dimensione_community 
+			//main_topics: {key: main_topic_id, value: count_nodi}
+			//statistics_common_topics: {avg: avg, max: max, min: min}
+			var main_topics_comm = [];
+			d3.map(communities_attributes, function(d){
+				var x = d3.nest()
+					.key(function(x){ return x.main_topic; })
+					.rollup(function(x){ return x.length; })
+					.entries(d.nodes)
+ 					.sort(function(x, y){ return d3.ascending(Number(x.value), Number(y.value)); });
+
+ 				var avg = d3.mean(x, function(v){return v.value;});
+ 				var min = d3.min(x, function(v){return v.value;});
+          		var max = d3.max(x, function(v){return v.value;});
+
+				main_topics_comm.push({ size: d.size, main_topics: x, statistics_common_topics: {avg: avg, max: max, min: min} });
+			});
+
+			//Per ogni cluster calcola numero massimo, minimo e medio di:
+			//a. main_topic all'interno di una community.
+			//b. nodi che condividono un certo topic.
+			//La dimensione della community identifica un cluster.
+			var main_topics_cluster = d3.nest()
+				.key(function(d){ return d.size; }).sortKeys((a, b) => d3.ascending(+a, +b))
+				.rollup(function(d){ return {
+						main_topics: {
+							avg: d3.mean(d, function(x) { return x.main_topics.length; }), 
+							max: d3.max(d, function(x) { return x.main_topics.length; }), 
+							min: d3.min(d, function(x) { return x.main_topics.length; })
+						},
+						main_topics_common: {
+							avg: d3.mean(d, function(x) { return x.statistics_common_topics.avg; }), 
+							max: d3.max(d, function(x) { return x.statistics_common_topics.max; }), 
+							min: d3.min(d, function(x) { return x.statistics_common_topics.min; })
+						}
+					}; 
+				})
+				.entries(main_topics_comm)
+ 				.sort(function(x, y){ return d3.ascending(Number(x.value), Number(y.value)); });
 
 			$("input[type='number'][name='rangeSliderX']").prop('max', max_community_size);
 
