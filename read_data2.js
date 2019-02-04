@@ -34,18 +34,18 @@ var svg = d3.select("#svgID"),
     width = +svg.node().getBoundingClientRect().width - margin.left - margin.right,
     height = +svg.node().getBoundingClientRect().height - margin.top - margin.bottom;
 
-var slider, svgSlider, sliderRange;
-var scales = {
-        sqrt:   d3.scalePow().exponent(0.5),
-        linear: d3.scaleLinear(),
-        power2: d3.scalePow().exponent(2)
-    };
-var scaleType = $("input[name='scaleOptions']:checked").val();
-var from = 0;
-var to = 80;
-var x = scales[scaleType]
-    .domain([from, to])
-    .rangeRound([margin.left, width+margin.left]);
+// var slider, svgSlider, sliderRange;
+// var scales = {
+//         sqrt:   d3.scalePow().exponent(0.5),
+//         linear: d3.scaleLinear(),
+//         power2: d3.scalePow().exponent(2)
+//     };
+// var scaleType = $("input[name='scaleOptions']:checked").val();
+// var from = 0;
+// var to = 80;
+// var x = scales[scaleType]
+//     .domain([from, to])
+//     .rangeRound([margin.left, width+margin.left]);
 
 d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 	//Viene popolato l'array delle communities identificate da SToC
@@ -91,9 +91,6 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
           		nodes: nodes,
           		links: links
           	}
-
- 			//d3forcegraph.js
- 			//createSelectSize();
 
           	var min = d3.min(nodes, function(d){return d.main_topic;})
           	var max = d3.max(nodes, function(d){return d.main_topic;})
@@ -141,80 +138,28 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 		  	//console.log(clusters);
 
  			//SLIDER AXIS X
-			svgSlider = d3.select("#sliderID"),
-			    marginSlider = {top: 20, right: 20, bottom: 20, left: 20},
-			    widthSlider = +svgSlider.node().getBoundingClientRect().width - marginSlider.left - marginSlider.right,
-			    heightSlider = +svgSlider.node().getBoundingClientRect().height - marginSlider.top - marginSlider.bottom;
+			// svgSlider = d3.select("#sliderID"),
+			//     marginSlider = {top: 20, right: 20, bottom: 20, left: 20},
+			//     widthSlider = +svgSlider.node().getBoundingClientRect().width - marginSlider.left - marginSlider.right,
+			//     heightSlider = +svgSlider.node().getBoundingClientRect().height - marginSlider.top - marginSlider.bottom;
 
-			slider = svgSlider.append("g")
-			    .attr("class", "slider")
-			    .attr("transform", "translate(" + marginSlider.left + "," + marginSlider.top + ")");
+			// slider = svgSlider.append("g")
+			//     .attr("class", "slider")
+			//     .attr("transform", "translate(" + marginSlider.left + "," + marginSlider.top + ")");
 
-			// Range
-			sliderRange = d3
-				.sliderBottom()
-				.min(0)
-				.max(max_community_size)
-				.width(widthSlider)
-				.tickFormat(d3.format(',d'))
-				.ticks(10)
-				.default([from, to])
-				.fill('#2196f3')
-				.on('onchange', changeRange);
+			// // Range
+			// sliderRange = d3
+			// 	.sliderBottom()
+			// 	.min(0)
+			// 	.max(max_community_size)
+			// 	.width(widthSlider)
+			// 	.tickFormat(d3.format(',d'))
+			// 	.ticks(10)
+			// 	.default([from, to])
+			// 	.fill('#2196f3')
+			// 	.on('onchange', changeRange);
 
-			slider.call(sliderRange);
-
-			// var ppp = d3.nest()
-			// 	.key(function(d){ return d.size; })
-			// 	.key(function(d){ return d.nodes.map(function(x){ x.prolific; }); })
-			// 	//.rollup(function(d){ return d.length; })
-			// 	.entries(communities_attributes);
-
-			// var prova = [];
-			// communities_attributes.map(function(c){
-			// 	var nodes = c.nodes;
-			// 	var size = c.size;
-			// 	var low = 0;
-			// 	var medium = 0;
-			// 	var high = 0;
-			// 	var values = d3.nest()
-			// 		.key(function(d){ return d.prolific; })
-			// 		.rollup(function(d){
-			// 			return d.length;
-			// 		})
-			// 		.entries(nodes)
-			// 		.map(function(element){
-
-			// 		});
-			// 	values.forEach(function(element){
-			// 		switch (element.key){
-			// 			case "0":
-			// 	          low = element.value;
-			// 	          break;
-			// 	        case "50":
-			// 	          medium = element.value;
-			// 	          break;
-			// 	        case "100":
-			// 	          high = element.value;
-			// 	          break;
-			// 	        default:
-			// 		}
-			// 	})
-
-			// 	prova.push({size:size, low: low, medium: medium, high: high })
-			// })
-
-			// var p = d3.nest()
-			// 		.key(function(d){ return d.size; })
-			// 		.rollup(function(d){
-			// 			return {
-			// 				low: d3.sum(d, function(v) { return v.low; }),
-			// 				medium: d3.sum(d, function(v) { return v.medium; }),
-			// 				high: d3.sum(d, function(v) { return v.high; })
-			// 			};
-			// 		})
-			// 		.entries(prova)
-			// 		.sort(function(x, y){ return d3.ascending(Number(x.key), Number(y.key)); });
+			// slider.call(sliderRange);
 
 			clusterSizeDistr.map(function(c){
 				var size = c.size;
@@ -293,7 +238,10 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 			$("input[type='number'][name='rangeSliderX']").prop('max', max_community_size);
 
  			//communityLayout.js default checked
- 			visualizeCommunities();
+ 			//visualizeCommunities();
+
+ 			//d3forcegraph.js
+ 			createSelectSize();
     });
   });
 });
@@ -338,31 +286,31 @@ d3.select(window).on("resize", function(){
 });
 
 $(document).ready(function(){
-	$("input[id='fromID']").val(from);
-	$("input[id='toID']").val(to);
-    $('input[type=number][name=rangeSliderX]').change(function(){
-        from = $("#fromID").val();
-		to = $("#toID").val();
-		sliderRange.silentValue([from, to])
-		slider.call(sliderRange);
-        updateAll();
-    });
-    $('input[type=radio][name=scaleOptions]').change(function(){
-        updateAll();
-    });
-    $('input[type=radio][name=typeOptions]').change(function(){
-    	if($('input:radio[id="beeswarmID"]')[0].checked){
-    		svg.selectAll("*").remove();
-		    initializeDisplay();
-		    width = +svg.node().getBoundingClientRect().width - margin.left - margin.right;
-		    height = +svg.node().getBoundingClientRect().height - margin.top - margin.bottom;
-		}
-    	if($('input:radio[id="stackBarChartID"]')[0].checked){
-			$("#scaleOptionsID").hide();
-		}else{
-			$("#scaleOptionsID").show();
-		}
+	// $("input[id='fromID']").val(from);
+	// $("input[id='toID']").val(to);
+ //    $('input[type=number][name=rangeSliderX]').change(function(){
+ //        from = $("#fromID").val();
+	// 	to = $("#toID").val();
+	// 	sliderRange.silentValue([from, to])
+	// 	slider.call(sliderRange);
+ //        updateAll();
+ //    });
+ //    $('input[type=radio][name=scaleOptions]').change(function(){
+ //        updateAll();
+ //    });
+ //    $('input[type=radio][name=typeOptions]').change(function(){
+ //    	if($('input:radio[id="beeswarmID"]')[0].checked){
+ //    		svg.selectAll("*").remove();
+	// 	    initializeDisplay();
+	// 	    width = +svg.node().getBoundingClientRect().width - margin.left - margin.right;
+	// 	    height = +svg.node().getBoundingClientRect().height - margin.top - margin.bottom;
+	// 	}
+ //    	if($('input:radio[id="stackBarChartID"]')[0].checked){
+	// 		$("#scaleOptionsID").hide();
+	// 	}else{
+	// 		$("#scaleOptionsID").show();
+	// 	}
 
-        updateAll();
-    });
+ //        updateAll();
+ //    });
 })

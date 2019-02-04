@@ -29,11 +29,20 @@ var prolificsCategory = [0,50,100];
 function linkInCommunity(value) {
   var source = value.source.id ? value.source.id : value.source;
   var target = value.target.id ? value.target.id : value.target;
-	return clusterSizeDistr[commGroupSize_id].communities[commGroup_id].includes(source) && clusterSizeDistr[commGroupSize_id].communities[commGroup_id].includes(target) && (source > target);
+	return clusterSizeDistr[commGroupSize_id].communities[commGroup_id]
+    .map(function(d){return d.id})
+    .includes(source) 
+    && clusterSizeDistr[commGroupSize_id].communities[commGroup_id]
+    .map(function(d){return d.id})
+    .includes(target) 
+     && (source > target);
 }
 //Selezione dei nodi che fanno parte di una specifica community
 function nodeInCommunity(value) {
-	return clusterSizeDistr[commGroupSize_id].communities[commGroup_id].includes(value.id);
+  //return clusterSizeDistr[commGroupSize_id].communities[commGroup_id].some(function(d){d.id == value.id;});
+	return clusterSizeDistr[commGroupSize_id].communities[commGroup_id]
+    .map(function(d){return d.id})
+    .includes(value.id);
 }
 
 function createSelectSize(){
