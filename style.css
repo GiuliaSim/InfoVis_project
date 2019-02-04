@@ -48,6 +48,12 @@ html, body {
 			font: 14px sans-serif;
 			/*font-weight: bold;*/
 		}
+
+		/*.cells :hover circle {
+  			fill: red;
+		}*/
+
+
 		/*div.tooltip {	
 		    position: absolute;		
 		    display: inline-block;
