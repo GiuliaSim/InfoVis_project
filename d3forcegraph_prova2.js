@@ -1,8 +1,5 @@
-
-//Crea lo spazio dove viene inserito il grafo
-var svg = d3.select("svg"),
-    width = +svg.node().getBoundingClientRect().width,
-    height = +svg.node().getBoundingClientRect().height;
+var nodeSize = 7;
+var communityID;
 
 // elements for data join
 var link = svg.append("g").selectAll(".link"),
@@ -12,27 +9,14 @@ var nodes_filtered = [],
 
 var div = d3.select("#tooltipId");
 
-var prolificsCategory = [0,50,100];
-
- var colorProlific = d3.scaleOrdinal(d3.schemeCategory20c)
-  .domain(d3.range(colorProlific)); 
-
-/*  var colorProlific = d3.scaleSequential()
-  .domain([0, 3])
-  .interpolator(d3.interpolateGreens); */
-
-
-// var colorProlific = steelblue;
-  
-
 //Selezione dei link che fanno parte di una specifica community
 function linkInCommunity(value) {
   var source = value.source.id ? value.source.id : value.source;
   var target = value.target.id ? value.target.id : value.target;
-	return clusterSizeDistr[commGroupSize_id].communities[commGroup_id]
+	return clusterSizeDistr[commGroupSize_id].communities[commGroup_id].nodes
     .map(function(d){return d.id})
     .includes(source) 
-    && clusterSizeDistr[commGroupSize_id].communities[commGroup_id]
+    && clusterSizeDistr[commGroupSize_id].communities[commGroup_id].nodes
     .map(function(d){return d.id})
     .includes(target) 
      && (source > target);
@@ -40,12 +24,16 @@ function linkInCommunity(value) {
 //Selezione dei nodi che fanno parte di una specifica community
 function nodeInCommunity(value) {
   //return clusterSizeDistr[commGroupSize_id].communities[commGroup_id].some(function(d){d.id == value.id;});
-	return clusterSizeDistr[commGroupSize_id].communities[commGroup_id]
+	return clusterSizeDistr[commGroupSize_id].communities[commGroup_id].nodes
     .map(function(d){return d.id})
     .includes(value.id);
 }
 
 function createSelectSize(){
+  colorMainTopic = d3.scaleSequential()
+    .domain([main_topic_min, main_topic_max])
+    .interpolator(d3.interpolateRainbow);
+
   $("#comm_group").append("<option selected>Choose...</option>")
   for(var i=0;i<clusters.length;i++){
     $("#comm_group").append("<option value=\""+clusters[i].cluster+"_commGroup\">"+ clusters[i].size +"</option>")
@@ -147,17 +135,20 @@ function updateForces() {
 
 // generate the svg objects and force simulation
 function initializeDisplay() {
+    communityID = clusterSizeDistr[commGroupSize_id].communities[commGroup_id].id;
+    nodes_filtered = clusterSizeDistr[commGroupSize_id].communities[commGroup_id].nodes;
+
   	//Filtro sui nodi della community corrente
-  	nodes_filtered = graph.nodes.filter(nodeInCommunity);
+  	//nodes_filtered = graph.nodes.filter(nodeInCommunity);
   	//Filtro sui link della community corrente
   	links_filtered = graph.links.filter(linkInCommunity);
 
   	// EXIT
-	// Remove old links
-	link = link.data(links_filtered);
-	link.exit().remove();
-	node = node.data(nodes_filtered);
-	node.exit().remove();
+  	// Remove old links
+  	link = link.data(links_filtered);
+  	link.exit().remove();
+  	node = node.data(nodes_filtered);
+  	node.exit().remove();
   	
   	//set the data and properties of link lines
     link = link.enter().append("line")
@@ -165,104 +156,48 @@ function initializeDisplay() {
      		.merge(link);
 
   	//set the data and properties of node circles
-	node = node.enter().append("circle")
-      .attr("r", 7)
-      .style("fill", function(d){return colorProlific(d.prolific);})
+	  node = node.enter().append("circle")
+      .attr("r", nodeSize)
+      .style("fill", function(d){
+        if($('input:radio[id="prolificID"]')[0].checked){
+          return colorProlific;
+        }
+        if($('input:radio[id="mainTopicID"]')[0].checked){
+          return colorMainTopic(d.main_topic);
+        }
+      })
+      .style("fill-opacity", function(d){
+        if($('input:radio[id="prolificID"]')[0].checked){
+          return opacityProlific(d.prolific);
+        }
+        if($('input:radio[id="mainTopicID"]')[0].checked){
+          return 1;
+        }
+      })
       .on("mouseover", function(d) { 
-                // d3.select(this).style("fill", "#808080"); 
-                  //d3.select(this).alert(d.id);
-                 // alert(d.graph.node.prolific);
-                 // alert(d.main_topic);
         div.transition()    
           .duration(200)
-        //  .style("fill", "#33FFCC")    
           .style("opacity", .9);
 
         div.html("<b>Id:</b> " + d.id + "<br/>" + "<b>Prolific:</b> " + d.prolific + "<br/>" + "<b>main_topic:</b> " + d.main_topic)  
               .style("left", (d3.event.pageX-100) + "px")   
               .style("top", (d3.event.pageY-140) + "px");
-
-                        
       })
-              .on("mouseout", function(d) {
-      // d3.select(this).style("fill", "#000000");
-                  div.transition()    
-                    .duration(500)    
-                    .style("opacity", 0); 
-                    
-                })
-    
-
-   /* .on("dblclick.zoom", function(d) {  d3.event.sourceEvent.stopPropagation();
-      var dcx = (window.innerWidth/2-d.x*zoom.scale());
-      var dcy = (window.innerHeight/2-d.y*zoom.scale());
-      zoom.translate([dcx,dcy]);
-      g.attr("transform", "translate("+ dcx + "," + dcy  + ")scale(" + zoom.scale() + ")");
-   
-   
-    }) */
-        
-    		
-	        .call(d3.drag()
-	            .on("start", dragstarted)              
-	            .on("drag", dragged)
-	            .on("end", dragended))           
-
-              
-
-
-              .merge(node);
-
-  
-              
-	         
+      .on("mouseout", function(d) {
+        div.transition()    
+          .duration(500)    
+          .style("opacity", 0);       
+      })
+      .call(d3.drag()
+        .on("start", dragstarted)              
+        .on("drag", dragged)
+        .on("end", dragended))
+      .merge(node);
 
   	// node tooltip
   	node.append("title")
       	.text(function(d) { return d.id; });
-
 }
-
-
-
-/*node.append("text")
-      .attr("class", "nodetext")
-      //.attr("x", width)
-      //.attr("y", height +15)
-     // .attr("fill", tcBlack)
-      .text(function(d) { return d.prolific; }); */
-
-
-// make the image grow a little on mouse over and add the text details on click
-/*  var setEvents = nodes_filtered
-          // Append hero text
-          .on( 'click', function (d) {
-              d3.select(d.prolific); 
-              d3.select(d.main_topic); 
-          })
-
-          .on( 'mouseenter', function() {
-            // select element in current context
-            d3.select( this )
-              .transition()
-              .attr("x", function(d) { return -60;})
-              .attr("y", function(d) { return -60;})
-              .attr("height", 100)
-              .attr("width", 100);
-          })
-          // set back
-          .on( 'mouseleave', function() {
-            d3.select( this )
-              .transition()
-              .attr("x", function(d) { return -25;})
-              .attr("y", function(d) { return -25;})
-              .attr("height", 50)
-              .attr("width", 50);
-          }); */
-
-  // Append hero name on roll over next to the node as well
-  
- 
 
 
 // update the display positions after each simulation tick
@@ -305,7 +240,7 @@ document.getElementById("comm_group").addEventListener("change",function(e) {
 	if(e.target && e.target.nodeName == "SELECT") {
 		commGroupSize_id = e.target.value.replace("_commGroup","");
 		initializeDisplay();
-        initializeSimulation();
+    initializeSimulation();
 	}
 });
 

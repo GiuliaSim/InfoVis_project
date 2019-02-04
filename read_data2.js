@@ -13,10 +13,13 @@ var max_community_size = 0, //dimensione massima di una community
     communities = [],
     communities_attributes = [],
     dataProlific = [],
-    axisX;
+    axisX,
+    main_topic_min,
+    main_topic_max;
 
 var graph;
 
+var colorMainTopic;
 var prolificsKey = {
 	100 : "High",
 	50 : "Medium",
@@ -92,9 +95,8 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
           		links: links
           	}
 
-          	var min = d3.min(nodes, function(d){return d.main_topic;})
-          	var max = d3.max(nodes, function(d){return d.main_topic;})
-          	console.log("main_topic. min:" + min + " max: " + max);
+          	main_topic_min = d3.min(nodes, function(d){return d.main_topic;})
+          	main_topic_max = d3.max(nodes, function(d){return d.main_topic;})
 
  			communities.map(function(community, i){
  				var community_attributes = [];
@@ -115,7 +117,7 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 		  	//Il risultato è insierito nell'array cluserSizeDistr.
  			clusterSizeDistr = d3.nest()
  				.key(function(d){ return d.size; }).sortKeys((a, b) => d3.ascending(+a, +b))
- 				.rollup(function(d){ return d.map(function(x){ return x.nodes}); })
+ 				.rollup(function(d){ return d.map(function(x){ return {id: x.id, nodes: x.nodes}; }); })
  				.entries(communities_attributes)
  				.map(function(d){
  					return {size: d.key, communities: d.value};
@@ -168,7 +170,7 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 				    high = 0;
 
 				c.communities.map(function(community){
-				  community.map(function(n){
+				  community.nodes.map(function(n){
 				      switch(n.prolific) {
 				        case 0:
 				          low++;
@@ -276,13 +278,13 @@ function updateAll(){
 
 // update size-related forces
 d3.select(window).on("resize", function(){
-	width = +svg.node().getBoundingClientRect().width - margin.left - margin.right,
-    height = +svg.node().getBoundingClientRect().height - margin.top - margin.bottom;
-	widthSlider = +svgSlider.node().getBoundingClientRect().width - marginSlider.left - marginSlider.right,
-	heightSlider = +svgSlider.node().getBoundingClientRect().height - marginSlider.top - marginSlider.bottom;
-	sliderRange.width(widthSlider);
-	slider.call(sliderRange);
-	updateAll();
+	// width = +svg.node().getBoundingClientRect().width - margin.left - margin.right,
+ //    height = +svg.node().getBoundingClientRect().height - margin.top - margin.bottom;
+	// widthSlider = +svgSlider.node().getBoundingClientRect().width - marginSlider.left - marginSlider.right,
+	// heightSlider = +svgSlider.node().getBoundingClientRect().height - marginSlider.top - marginSlider.bottom;
+	// sliderRange.width(widthSlider);
+	// slider.call(sliderRange);
+	// updateAll();
 });
 
 $(document).ready(function(){
