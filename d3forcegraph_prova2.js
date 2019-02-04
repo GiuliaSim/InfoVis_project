@@ -1,3 +1,4 @@
+
 //Crea lo spazio dove viene inserito il grafo
 var svg = d3.select("svg"),
     width = +svg.node().getBoundingClientRect().width,
@@ -8,6 +9,21 @@ var link = svg.append("g").selectAll(".link"),
 	node = svg.append("g").selectAll(".node");
 var nodes_filtered = [],
   	links_filtered = [];
+
+var div = d3.select("#tooltipId");
+
+var prolificsCategory = [0,50,100];
+
+ var colorProlific = d3.scaleOrdinal(d3.schemeCategory20c)
+  .domain(d3.range(colorProlific)); 
+
+/*  var colorProlific = d3.scaleSequential()
+  .domain([0, 3])
+  .interpolator(d3.interpolateGreens); */
+
+
+// var colorProlific = steelblue;
+  
 
 //Selezione dei link che fanno parte di una specifica community
 function linkInCommunity(value) {
@@ -141,26 +157,71 @@ function initializeDisplay() {
 
   	//set the data and properties of node circles
 	node = node.enter().append("circle")
-    		.attr("r", 5)
+      .attr("r", 7)
+      .style("fill", function(d){return colorProlific(d.prolific);})
+      .on("mouseover", function(d) { 
+                // d3.select(this).style("fill", "#808080"); 
+                  //d3.select(this).alert(d.id);
+                 // alert(d.graph.node.prolific);
+                 // alert(d.main_topic);
+        div.transition()    
+          .duration(200)
+        //  .style("fill", "#33FFCC")    
+          .style("opacity", .9);
+
+        div.html("<b>Id:</b> " + d.id + "<br/>" + "<b>Prolific:</b> " + d.prolific + "<br/>" + "<b>main_topic:</b> " + d.main_topic)  
+              .style("left", (d3.event.pageX-100) + "px")   
+              .style("top", (d3.event.pageY-140) + "px");
+
+                        
+      })
+              .on("mouseout", function(d) {
+      // d3.select(this).style("fill", "#000000");
+                  div.transition()    
+                    .duration(500)    
+                    .style("opacity", 0); 
+                    
+                })
+    
+
+   /* .on("dblclick.zoom", function(d) {  d3.event.sourceEvent.stopPropagation();
+      var dcx = (window.innerWidth/2-d.x*zoom.scale());
+      var dcy = (window.innerHeight/2-d.y*zoom.scale());
+      zoom.translate([dcx,dcy]);
+      g.attr("transform", "translate("+ dcx + "," + dcy  + ")scale(" + zoom.scale() + ")");
+   
+   
+    }) */
+        
+    		
 	        .call(d3.drag()
-	            .on("start", dragstarted)
+	            .on("start", dragstarted)              
 	            .on("drag", dragged)
-	            .on("end", dragended))
-              //.on("click", click))
-	        .merge(node);
+	            .on("end", dragended))           
+
+              
+
+
+              .merge(node);
+
+  
+              
+	         
 
   	// node tooltip
   	node.append("title")
       	.text(function(d) { return d.id; });
+
 }
 
 
-node.append("text")
+
+/*node.append("text")
       .attr("class", "nodetext")
       //.attr("x", width)
       //.attr("y", height +15)
      // .attr("fill", tcBlack)
-      .text(function(d) { return d.prolific; });
+      .text(function(d) { return d.prolific; }); */
 
 
 // make the image grow a little on mouse over and add the text details on click
