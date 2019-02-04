@@ -1,7 +1,7 @@
-//Crea lo spazio dove viene inserito il grafo
-var svg = d3.select("svg"),
-    width = +svg.node().getBoundingClientRect().width,
-    height = +svg.node().getBoundingClientRect().height;
+// //Crea lo spazio dove viene inserito il grafo
+// var svg = d3.select("svgID"),
+//     width = +svg.node().getBoundingClientRect().width,
+//     height = +svg.node().getBoundingClientRect().height;
 
 // elements for data join
 var link = svg.append("g").selectAll(".link"),
@@ -141,6 +141,7 @@ function initializeDisplay() {
 
   	//set the data and properties of node circles
 	node = node.enter().append("circle")
+        .style("fill", function(d) { return colorProlific(d.prolific); })
     		.attr("r", 5)
 	        .call(d3.drag()
 	            .on("start", dragstarted)
@@ -193,7 +194,7 @@ document.getElementById("comm_group").addEventListener("change",function(e) {
 	if(e.target && e.target.nodeName == "SELECT") {
 		commGroupSize_id = e.target.value.replace("_commGroup","");
 		initializeDisplay();
-        initializeSimulation();
+    initializeSimulation();
 	}
 });
 

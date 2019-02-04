@@ -2,23 +2,12 @@
 var formatCount = d3.format(",.0f");
 
 function histogram(){
-  var g = svg.append("g")
-    .attr("transform", 
-          "translate(" + margin.left + "," + margin.top + ")");
+  //var g = svg.append("g")
+    //.attr("transform", "translate(0," + margin.top + ")");
 
-  var x = d3.scalePow().exponent(0.5)
-            .domain([5000, max_community_size])
-            .rangeRound([1, width]);
   var y = d3.scalePow().exponent(0.5)
-            .domain([0, max_community_count])
+            .domain([0, num_community])
             .range([height, 0]);
-
-  /*var x = d3.scaleLinear()
-          .domain([0, max_community_size])
-          .rangeRound([0, width]);
-  var y = d3.scaleLinear()
-            .domain([0, max_community_count])
-            .range([height, 0]);*/
 
   // Define the div for the tooltip
   // var div = d3.select("body").append("div") 
@@ -29,15 +18,14 @@ function histogram(){
   // set the parameters for the histogram
   var histogram = d3.histogram()
       .domain(x.domain())
-      .thresholds(x.ticks(80));
+      .thresholds(x.ticks(100));
 
-  //var map = communities.map(function(d){return {size:d.length,nodes:d}});
   var map = communities.map(function(d){return d.length});
     
   // group the data for the bars
   var bins = histogram(map);
     
-  var bar = g.selectAll(".bar")
+  var bar = svg.selectAll(".bar")
     .data(bins)
   .enter().append("g")
     .attr("class", "bar")
@@ -48,7 +36,7 @@ function histogram(){
     .attr("x", 1)
     .attr("width", function(d) { 
       var diff = x(d.x1) - x(d.x0);
-      var value = diff > 0 ? diff - 1 : diff;
+      var value = diff > 0 ? diff - 0.8 : diff;
       return value; 
     })
     .attr("height", function(d) { return height - y(d.length); })
@@ -56,8 +44,11 @@ function histogram(){
         d3.select(this).style("fill", "#315b7d");   
         div.transition()    
             .duration(200)    
-            .style("opacity", .9);    
-        div.html("<b>Size:</b> " + d[0] + "<br/>" + "<b>Count:</b> " + d.length)  
+            .style("opacity", .9); 
+        var min = d3.min(d);  
+        var max = d3.max(d);
+        var value = min != max ? min + "-" + max : max;  
+        div.html("<b>Size:</b> " + value + "<br/>" + "<b>Count:</b> " + d.length)  
             .style("left", (d3.event.pageX-20) + "px")   
             .style("top", (d3.event.pageY-70) + "px");  
         })          
@@ -73,37 +64,32 @@ function histogram(){
 
 
     // add the x Axis
-    g.append("g")
-        .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x));
-
-    // text label for the x axis
-    g.append("text")             
-        .attr("class", "label")
+    svg.append("g")
+        .attr("transform", "translate("+ 0 +"," + height + ")")
+        .call(d3.axisBottom(x))
+        .append("text")
         .attr("x", (width + margin.left) / 2)
-        .attr("y", height + margin.top)
-        .style("text-anchor", "middle")
-        .text("Size");  
+        .attr("y", margin.top)
+        .attr("dx", "0.32em")
+        .attr("fill", "#000")
+        .attr("font-weight", "bold")
+        .attr("text-anchor", "start")
+        .text("Size");
 
     // add the y Axis
-    g.append("g")
-        .call(d3.axisLeft(y));
-
-    // text label for the y axis
-    g.append("text")
-        .attr("class", "label")
+    svg.append("g")
+        .attr("transform", "translate("+ margin.left +"," + 0 + ")")
+        .call(d3.axisLeft(y))
+        .append("text")
         .attr("transform", "rotate(-90)")
-        .attr("y", 0 - margin.left)
-        .attr("x",0 - (height / 2))
-        .attr("dy", "1em")
-        .attr("dy", "1em")
-        .style("text-anchor", "middle")
-        .text("Count");  
-} 
-
-$('#inlineRadio1').click(function () {
-    updateHistogram();
-});
+        .attr("y", 15 - (margin.left))
+        .attr("x", 0 - (height / 2))
+        .attr("dy", "0.32em")
+        .attr("fill", "#000")
+        .attr("font-weight", "bold")
+        .attr("text-anchor", "middle")
+        .text("Count");
+}
 
 function updateHistogram(){
   svg.selectAll("*").remove();
