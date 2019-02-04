@@ -91,7 +91,12 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
           		nodes: nodes,
           		links: links
           	}
-          	//var gggg = nodes.filter(function(d){return typeof d.main_topic == 'undefined';}); 
+
+ 			//d3forcegraph.js
+ 			createSelectSize();
+
+ 			//communityLayout.js
+ 			//visualizeCommunities();
 
           	var min = d3.min(nodes, function(d){return d.main_topic;})
           	var max = d3.max(nodes, function(d){return d.main_topic;})
