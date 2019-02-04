@@ -102,11 +102,11 @@ function updateForces() {
           //
           // The latter was done to keep the single-link groups ('blue', rose, ...) close.
           return 30 +
-            Math.min(20 * Math.min((n1.size ),
-                                   (n2.size )),
+            Math.min(20 * Math.min((n1.size || (n1.main_topic != n2.main_topic ? n1.group_data.size : 0)),
+                                   (n2.size || (n1.main_topic != n2.main_topic ? n2.group_data.size : 0))),
                  -30 +
-                 30 * Math.min((n1.link_count ),
-                               (n2.link_count )),
+                 30 * Math.min((n1.link_count || (n1.main_topic != n2.main_topic ? n1.group_data.link_count : 0)),
+                               (n2.link_count || (n1.main_topic != n2.main_topic ? n2.group_data.link_count : 0))),
                  100);
         })
         .links(net.links);
@@ -171,7 +171,7 @@ function initializeDisplay() {
           return colorProlific;
         }
         if($('input:radio[id="mainTopicID"]')[0].checked){
-          return colorMainTopic(d.group);
+          return colorMainTopic(d.main_topic);
         }
       })
       .style("fill-opacity", function(d){
@@ -187,7 +187,13 @@ function initializeDisplay() {
           .duration(200)
           .style("opacity", .9);
 
-        div.html("<b>Id:</b> " + d.id + "<br/>" + "<b>Prolific:</b> " + d.prolific + "<br/>" + "<b>main_topic:</b> " + d.main_topic)  
+        var text;
+        if(d.id){
+          text = "<b>Id:</b> " + d.id + "<br/>" + "<b>Prolific:</b> " + d.prolific + "<br/>" + "<b>Main topic:</b> " + d.main_topic;
+        }else{
+          text = "<b>Main topic:</b> " + d.main_topic + "<br/>" + "<b>Nodes:</b> " + d.nodes.length;
+        }
+        div.html(text)  
               .style("left", (d3.event.pageX-100) + "px")   
               .style("top", (d3.event.pageY-140) + "px");
       })
@@ -197,8 +203,8 @@ function initializeDisplay() {
           .style("opacity", 0);       
       })
       .on("click", function(d) {
-        console.log("node click", d, arguments, this, expand[d.group]);
-        expand[d.group] = !expand[d.group];
+        //console.log("node click", d, arguments, this, expand[d.main_topic]);
+        expand[d.main_topic] = !expand[d.main_topic];
         initializeDisplay();
         initializeSimulation();
 
@@ -273,7 +279,7 @@ function updateAll() {
 
 
 function nodeid(n) {
-  return n.size ? "_g_"+n.group : n.id;
+  return n.size ? "_g_"+n.main_topic : n.id;
 }
 
 function linkid(l) {
@@ -315,11 +321,11 @@ function network(data, prev, index, expand) {
   for (var k=0; k<data.nodes.length; ++k) {
     var n = data.nodes[k],
         i = index(n),
-        l = gm[i] || (gm[i]=gn[i]) || (gm[i]={group:i, size:0, nodes:[]});
+        l = gm[i] || (gm[i]=gn[i]) || (gm[i]={main_topic:i, size:0, nodes:[]});
 
     if (expand[i]) {
       // the node should be directly visible
-      nm[n.id] = n.id;
+      nm[n.id] = nodes.length;
       nodes.push(n);
       if (gn[i]) {
         // place new nodes at cluster location (plus jitter)
@@ -349,16 +355,18 @@ function network(data, prev, index, expand) {
   // determine links
   for (k=0; k<data.links.length; ++k) {
     var e = data.links[k],
-        s = data.nodes.filter(function(d){ return d.id == e.source; }),
-        t = data.nodes.filter(function(d){ return d.id == e.target; }),
-        u = index(s[0]),
-        v = index(t[0]);
+        u = index(e.source),
+        v = index(e.target);
+        // s = data.nodes.filter(function(d){ return d.id == e.source; }),
+        // t = data.nodes.filter(function(d){ return d.id == e.target; }),
+        // u = index(s[0]),
+        // v = index(t[0]);
   if (u != v) {
     gm[u].link_count++;
     gm[v].link_count++;
   }
-    u = expand[u] ? nm[e.source] : nm[u];
-    v = expand[v] ? nm[e.target] : nm[v];
+    u = expand[u] ? nm[e.source.id] : nm[u];
+    v = expand[v] ? nm[e.target.id] : nm[v];
     var i = (u<v ? u+"|"+v : v+"|"+u),
         l = lm[i] || (lm[i] = {source:u, target:v, size:0});
     l.size += 1;

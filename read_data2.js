@@ -95,6 +95,13 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
           		links: links
           	}
 
+          	
+		    for (var i=0; i<graph.links.length; ++i) {
+		      o = graph.links[i];
+		      o.source = graph.nodes[o.source - 1];
+		      o.target = graph.nodes[o.target - 1];
+		    }
+
           	main_topic_min = d3.min(nodes, function(d){return d.main_topic;})
           	main_topic_max = d3.max(nodes, function(d){return d.main_topic;})
 
