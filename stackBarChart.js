@@ -106,7 +106,7 @@ function initializeDisplayStackBar() {
         var size = d.data.size;  
         div.html("<b>High:</b> " + high + "<br/>" + "<b>Medium:</b> " + medium + "<br/><b>Low:</b> " + low+ "<br/><b>Size:</b> " + size)  
             .style("left", (d3.event.pageX-20) + "px")   
-            .style("top", (d3.event.pageY-100) + "px");  
+            .style("top", (d3.event.pageY-120) + "px");  
         })          
     .on("mouseout", function(d) {   
         d3.select(this).style("fill", "steelblue");

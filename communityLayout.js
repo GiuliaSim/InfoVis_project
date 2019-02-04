@@ -34,13 +34,14 @@ function initializeValues(){
       .domain([1, max_community_size])
       .range([1, 10]);
 
-    communities.map(function(d){
-      var size = d.length;
+    communities_attributes.map(function(d){
+      var size = d.size;
       //if(size > 3){
         var radius = r(size);
         //var radius = 2;
         var cluster = clusters.findIndex((item) => item.size == size);
         var node = {
+          id: d.id,
           size: size,
           cluster: cluster,
           radius: radius
@@ -147,19 +148,19 @@ function initializeDisplay() {
   // create groups, links and nodes
   groups = svg.append('g').attr('class', 'groups');
 
-  // count members of each group. Groups with less
-  // than 3 member will not be considered (creating
-  // a convex hull need 3 points at least)
-  groupIds = d3.set(communities.map(function(n) { return +n.length; }))
-    .values()
-    .map( function(groupId) {
-      return { 
-        groupId : groupId,
-        count : communities.filter(function(n) { return +n.length == groupId; }).length
-      };
-    })
-    .filter( function(group) { return group.count > 2;})
-    .map( function(group) { return group.groupId; });
+  // // count members of each group. Groups with less
+  // // than 3 member will not be considered (creating
+  // // a convex hull need 3 points at least)
+  // groupIds = d3.set(communities_attributes.map(function(n) { return +n.length; }))
+  //   .values()
+  //   .map( function(groupId) {
+  //     return { 
+  //       groupId : groupId,
+  //       count : communities_attributes.filter(function(n) { return +n.length == groupId; }).length
+  //     };
+  //   })
+  //   .filter( function(group) { return group.count > 2;})
+  //   .map( function(group) { return group.groupId; });
 
   paths = groups.selectAll('.path_placeholder')
     .data(clusters, function(d) { return +d.cluster; })

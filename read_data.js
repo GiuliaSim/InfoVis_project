@@ -11,6 +11,7 @@ var max_community_size = 0, //dimensione massima di una community
     num_community, //numero di community
     clusters = [],
     communities = [],
+    communities_attributes = [],
     dataProlific = [],
     axisX;
 
@@ -93,8 +94,7 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
           	var max = d3.max(nodes, function(d){return d.main_topic;})
           	console.log("main_topic. min:" + min + " max: " + max);
 
-          	var communities_attributes = [];
- 			communities.map(function(community){
+ 			communities.map(function(community, i){
  				var community_attributes = [];
  				var size = community.length;
  				community.map(function(d){
@@ -105,21 +105,19 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 				      	community_attributes.push({id: d, main_topic: main_topic, prolific: prolific});
 				  	}
  				});
- 				communities_attributes.push({nodes: community_attributes, size:size});
+ 				communities_attributes.push({id: i, nodes: community_attributes, size:size});
  			});
 
  			//Le communities identificate vengono raggruppate 
 		  	//a partire dal numero dei nodi che ne fanno parte. 
 		  	//Il risultato è insierito nell'array cluserSizeDistr.
  			clusterSizeDistr = d3.nest()
- 				//.key(function(d){ return Number(d.size); }).sortKeys(d3.ascending)
- 				.key(function(d){ return d.size; }).sortKeys(d3.ascending)
+ 				.key(function(d){ return d.size; }).sortKeys((a, b) => d3.ascending(+a, +b))
  				.rollup(function(d){ return d.map(function(x){ return x.nodes}); })
  				.entries(communities_attributes)
  				.map(function(d){
  					return {size: d.key, communities: d.value};
  				})
- 				.sort(function(x, y){ return d3.ascending(Number(x.size), Number(y.size)); });
 
 		  	max_community_size = d3.max(communities, function(d){return d.length;});
 		  	num_community = communities.length;
@@ -130,9 +128,9 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
     		clusterSizeDistr.map(function(d, i){clusters[i] = {cluster: i, size: d.size, count: d.communities.length};})
 
 		  	//console.log(communities);
-		  	//console.log(clusterSizeDistr);
+		  	console.log(communities_attributes);
+		  	console.log(clusterSizeDistr);
 		  	//console.log(clusters);
-
 
  			//SLIDER AXIS X
 			svgSlider = d3.select("#sliderID"),
@@ -157,7 +155,6 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 				.on('onchange', changeRange);
 
 			slider.call(sliderRange);
-
 
 			// var ppp = d3.nest()
 			// 	.key(function(d){ return d.size; })
@@ -258,6 +255,8 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 				main_topics_comm.push({ size: d.size, main_topics: x, statistics_common_topics: {avg: avg, max: max, min: min} });
 			});
 
+			console.log(main_topics_comm);
+
 			//Per ogni cluster calcola numero massimo, minimo e medio di:
 			//a. main_topic all'interno di una community.
 			//b. nodi che condividono un certo topic.
@@ -279,6 +278,9 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 				})
 				.entries(main_topics_comm)
  				.sort(function(x, y){ return d3.ascending(Number(x.value), Number(y.value)); });
+			
+			console.log(main_topics_cluster);
+
 
 			$("input[type='number'][name='rangeSliderX']").prop('max', max_community_size);
 
