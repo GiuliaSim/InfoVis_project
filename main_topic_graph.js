@@ -1,5 +1,5 @@
 var nodeSize = 7,
-    dr = 4;
+    dr = 5;
 var communityID;
 var net, data, 
     expand = {};
@@ -102,9 +102,9 @@ function updateForces() {
           //
           // The latter was done to keep the single-link groups ('blue', rose, ...) close.
           return 30 +
-            Math.min(20 * Math.min((n1.size || (n1.main_topic != n2.main_topic ? n1.group_data.size : 0)),
-                                   (n2.size || (n1.main_topic != n2.main_topic ? n2.group_data.size : 0))),
-                 -30 +
+            Math.min(20 * Math.min((n1.size || 0),
+                                   (n2.size || 0)),
+                 -10 +
                  30 * Math.min((n1.link_count || (n1.main_topic != n2.main_topic ? n1.group_data.link_count : 0)),
                                (n2.link_count || (n1.main_topic != n2.main_topic ? n2.group_data.link_count : 0))),
                  100);
@@ -161,27 +161,31 @@ function initializeDisplay() {
     node = node.enter().append("circle")
       .attr("class", function(d) { return "node" + (d.size?"":" leaf"); })
       .attr("r", function(d) { 
-        var s = d.size ? r(d.size) + dr : dr+1;
+        var s = d.size ? r(d.size) + dr : dr+2;
         return s;
       })
       .attr("cx", function(d) { return d.x; })
       .attr("cy", function(d) { return d.y; })
       .style("fill", function(d){
         if($('input:radio[id="prolificID"]')[0].checked){
-          return colorProlific;
+          if(typeof d.prolific != "undefined"){
+            return colorProlific[d.prolific];
+          } else {
+            return "steelblue";
+          }
         }
         if($('input:radio[id="mainTopicID"]')[0].checked){
           return colorMainTopic(d.main_topic);
         }
       })
-      .style("fill-opacity", function(d){
-        if($('input:radio[id="prolificID"]')[0].checked){
-          return opacityProlific(d.prolific);
-        }
-        if($('input:radio[id="mainTopicID"]')[0].checked){
-          return 1;
-        }
-      })
+      // .style("fill-opacity", function(d){
+      //   if($('input:radio[id="prolificID"]')[0].checked){
+      //     return opacityProlific(d.prolific);
+      //   }
+      //   if($('input:radio[id="mainTopicID"]')[0].checked){
+      //     return 1;
+      //   }
+      // })
       .on("mouseover", function(d) { 
         div.transition()    
           .duration(200)
@@ -191,7 +195,7 @@ function initializeDisplay() {
         if(d.id){
           text = "<b>Id:</b> " + d.id + "<br/>" + "<b>Prolific:</b> " + d.prolific + "<br/>" + "<b>Main topic:</b> " + d.main_topic;
         }else{
-          text = "<b>Main topic:</b> " + d.main_topic + "<br/>" + "<b>Nodes:</b> " + d.nodes.length;
+          text = "<b>Main topic:</b> " + d.main_topic + "<br/>" + "<b>Nodes:</b> " + d.size;
         }
         div.html(text)  
               .style("left", (d3.event.pageX-100) + "px")   
@@ -260,6 +264,7 @@ function dragended(d) {
 document.getElementById("comm_group").addEventListener("change",function(e) {
   if(e.target && e.target.nodeName == "SELECT") {
     commGroupSize_id = e.target.value.replace("_commGroup","");
+    expand = {};
     initializeDisplay();
     initializeSimulation();
   }
@@ -269,7 +274,9 @@ document.getElementById("comm_group").addEventListener("change",function(e) {
 d3.select(window).on("resize", function(){
     width = +svg.node().getBoundingClientRect().width;
     height = +svg.node().getBoundingClientRect().height;
-    updateForces();
+    if(communityID){
+      updateForces();
+    }
 });
 
 //convenience function to update everything (run after UI input)

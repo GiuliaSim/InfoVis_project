@@ -25,8 +25,15 @@ var prolificsKey = {
 	50 : "Medium",
 	0 : "Low"
 };
-var prolificsCategory = [0,50,100];
-var colorProlific = "steelblue";
+
+var colorProlific = {
+	100 : "steelblue",
+	50 : "#a2c0d9",
+	0 : "#dae6f0"
+};
+
+/*var prolificsCategory = [0,50,100];
+var colorProlific = "steelblue";*/
 var opacityProlific = d3.scaleLinear()
 						.domain([0,100])
 						.range([0.4,1]);

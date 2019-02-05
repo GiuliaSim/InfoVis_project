@@ -34,10 +34,10 @@ html, body {
 		}
 		.node-icon--faded {
 			opacity: 0.5;
-		}
+		}/*
 		.legend-size circle {
 			fill: rgb(31, 119, 180);
-		}
+		}*/
 		.bar {
 			fill: steelblue;
     	  	shape-rendering: crispEdges;
@@ -106,7 +106,6 @@ html, body {
 			color: white;
 		}
 		circle.node {
-		  fill: lightsteelblue;
 		  stroke: #555;
 		  stroke-width: 3px;
 		}
