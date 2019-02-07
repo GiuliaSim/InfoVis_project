@@ -97,7 +97,7 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 
           	var min = d3.min(nodes, function(d){return d.main_topic;})
           	var max = d3.max(nodes, function(d){return d.main_topic;})
-          	console.log("main_topic. min:" + min + " max: " + max);
+          //	console.log("main_topic. min:" + min + " max: " + max);
 
  			communities.map(function(community, i){
  				var community_attributes = [];
@@ -132,12 +132,12 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 		  	//Viene creato l'array di clusters identificati. 
     		clusterSizeDistr.map(function(d, i){clusters[i] = {cluster: i, size: d.size, count: d.communities.length};})
 
-		  	console.log("communities");
-		  	console.log(communities);
-		  	console.log("communities_attributes");
-		  	console.log(communities_attributes);
-		  	console.log("clusterSizeDistr");
-		  	console.log(clusterSizeDistr);
+		  	// console.log("communities");
+		  	// console.log(communities);
+		  	// console.log("communities_attributes");
+		  	// console.log(communities_attributes);
+		  	// console.log("clusterSizeDistr");
+		  	// console.log(clusterSizeDistr);
 		  	//console.log(clusters);
 
  			//SLIDER AXIS X

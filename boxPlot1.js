@@ -1,7 +1,9 @@
-// var groupCounts = main_topics_comm;
+var groupCounts = [];
 var yScale,
     xScale;    
 var barWidth = 30;
+
+console.log(communities);
 // var globalCountsMax = [];
 // var globalCountsMin = [];
 // var beginning = 0;
@@ -23,17 +25,16 @@ var barWidth = 30;
 
 // Prepare the data for the box plots
   var boxPlotData = [];
-  function(d) {
-
-  }
-  for (var mt in main_topics_comm) {
-    var localMin = main_topics.min;
-    var localMax = main_topics.max;
+  //groupCounts = main_topics_comm[x];
+  for (x in groupCounts) {
+    var localMin = x[min];
+    var localMax = x[max];
+    var localAvg = x[avg];
 
 
     var obj = {};
     obj["key"] = id;
-    obj["counts"] = main_topics;
+    obj["counts"] = x;
     obj["quartile"] = boxQuartiles();
     obj["whiskers"] = [localMin, localMax];
     obj["color"] = colorScale(key);

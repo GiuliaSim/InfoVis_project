@@ -36,7 +36,7 @@ function stackBar(){
 
 function updateDataStackBar(){
   dataProlific_filtered = dataProlific.filter(function(d) { return Number(d.size) >= from && Number(d.size) <= to; });
-
+  //console.log(communities);
   layers = d3.stack()
             .keys(prolificsCategory)
             .offset(d3.stackOffsetDiverging)
