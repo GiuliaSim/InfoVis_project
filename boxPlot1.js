@@ -1,36 +1,40 @@
-var groupCounts = main_topics_comm;
+// var groupCounts = main_topics_comm;
 var yScale,
     xScale;    
 var barWidth = 30;
-var globalCountsMax = [];
-var globalCountsMin = [];
+// var globalCountsMax = [];
+// var globalCountsMin = [];
 // var beginning = 0;
 // var end = 80;
 
 
-for (var mt in groupCounts) {
-	globalCountsMax.push(mt.max);
-}
+// for (var mt in groupCounts) {
+// 	globalCountsMax.push(mt.max);
+// }
 
 // Sort group counts so quantile methods work
-for(var key in groupCounts) {
-    var groupCount = groupCounts[key];
-    groupCounts[key] = groupCount.sort(sortNumber);
+// for(var key in groupCounts) {
+//     var groupCount = groupCounts[key];
+//     groupCounts[key] = groupCount.sort(sortNumber);
 
 // Setup a color scale for filling each box
-  var colorScale = d3.scaleOrdinal(d3.schemeCategory10)
-    .domain(Object.keys(groupCounts));
+  // var colorScale = d3.scaleOrdinal(d3.schemeCategory10)
+  //   .domain(Object.keys(groupCounts));
 
 // Prepare the data for the box plots
   var boxPlotData = [];
-  for (var mt in groupCounts) {
-    var localMin = min;
-    var localMax = max;
+  function(d) {
+
+  }
+  for (var mt in main_topics_comm) {
+    var localMin = main_topics.min;
+    var localMax = main_topics.max;
+
 
     var obj = {};
     obj["key"] = id;
-    obj["counts"] = groupCount;
-    obj["quartile"] = boxQuartiles(groupCount);
+    obj["counts"] = main_topics;
+    obj["quartile"] = boxQuartiles();
     obj["whiskers"] = [localMin, localMax];
     obj["color"] = colorScale(key);
     boxPlotData.push(obj);
@@ -47,10 +51,12 @@ var sizes = dataProlific_filtered.map(function(d){return d.size;});*/
 //     .range([height, 0]);
 
 // Compute an ordinal xScale for the keys in boxPlotData
-xScale = d3.scaleBand()
+var sizes = dataProlific_filtered.map(function(d){return d.size;});
+  xStackBar = d3.scaleBand()
     .domain(sizes)
-    .rangeRound([0, width])
-    .padding([0.5]);
+    .range([margin.left, width + margin.left])
+    .padding(0.08)
+
 
 // xScale = d3.scaleBand()
 //     .domain(sizes)
@@ -92,11 +98,11 @@ xScale = d3.scaleBand()
     	      "translate(" + margin.left + "," + margin.top + ")");
 
   // append a group for the box plot elements
-  var g = svg.append("g");
+  var gr = svg.append("gr");
 
   // Draw the box plot vertical lines
   var verticalLines = g.selectAll(".verticalLines")
-    .data(boxPlotData)
+    .data(main_topics_comm.main_topics)
     .enter()
     .append("line")
     .attr("x1", function(datum) { return xScale(datum.key); })
@@ -108,7 +114,7 @@ xScale = d3.scaleBand()
     .attr("fill", "none");
 
   // Draw the boxes of the box plot, filled and on top of vertical lines
-  var rects = g.selectAll("rect")
+  /*var rects = g.selectAll("rect")
     .data(boxPlotData)
     .enter()
     .append("rect")
@@ -123,9 +129,9 @@ xScale = d3.scaleBand()
     .attr("fill", function(datum) { return datum.color; })
     .attr("stroke", "#000")
     .attr("stroke-width", 1);
-
+*/
   // Now render all the horizontal lines at once - the whiskers and the median
-  var horizontalLineConfigs = [
+  /*var horizontalLineConfigs = [
     // Top whisker
     {
       x1: function(datum) { return xScale(datum.key) - barWidth/2 },
@@ -164,19 +170,19 @@ xScale = d3.scaleBand()
       .attr("stroke", "#000")
       .attr("stroke-width", 1)
       .attr("fill", "none");
-  }
+  }*/
 
   // Move the left axis over 25 pixels, and the top axis over 35 pixels
   //var axisY = svg.append("g").attr("transform", "translate(25,0)");
   //var axisX = svg.append("g").attr("transform", "translate(35,0)");
 
   //x-axis
-  svg.append("g")
+  svg.append("gr")
      .attr("transform", "translate(0," + height + ")")
      .call(d3.axisBottom(xScale));
 
   // Add the Y Axis
-  svg.append("g")
+  svg.append("gr")
      .call(d3.axisLeft(yScale));
         
 	function boxQuartiles(d) {

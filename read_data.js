@@ -258,12 +258,20 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 
  				var avg = d3.mean(x, function(v){return v.value;});
  				var min = d3.min(x, function(v){return v.value;});
-          		var max = d3.max(x, function(v){return v.value;});
+        var max = d3.max(x, function(v){return v.value;});
 
 				main_topics_comm.push({ id: d.id, size: d.size, main_topics: x, statistics_common_topics: {avg: avg, max: max, min: min} });
 			});
 
-			console.log(main_topics_comm);
+      // for (x in main_topics_comm) {
+      //   for(avg in x) {
+      //     console.log(avg, main_topics_comm[x]);
+      //   }
+        
+      // }
+
+			
+     // console.log(communities_attributes);
 
 			//Per ogni cluster calcola numero massimo, minimo e medio di:
 			//a. main_topic all'interno di una community.
