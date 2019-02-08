@@ -14,7 +14,7 @@ var max_community_size = 0, //dimensione massima di una community
     communities_attributes = [],
     dataProlific = [],
     axisX;
-
+var main_topics_comm = [];
 var graph;
 
 var prolificsKey = {
@@ -248,7 +248,7 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 			//size: dimensione_community 
 			//main_topics: {key: main_topic_id, value: count_nodi}
 			//statistics_common_topics: {avg: avg, max: max, min: min}
-			var main_topics_comm = [];
+			
 			d3.map(communities_attributes, function(d){
 				var x = d3.nest()
 					.key(function(x){ return x.main_topic; })

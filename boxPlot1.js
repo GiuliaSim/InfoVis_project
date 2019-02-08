@@ -3,7 +3,8 @@ var yScale,
     xScale;    
 var barWidth = 30;
 
-console.log(communities);
+for (c in main_topics_comm[main_topics])
+console.log(main_topics_comm[main_topics].avg);
 // var globalCountsMax = [];
 // var globalCountsMin = [];
 // var beginning = 0;
