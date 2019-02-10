@@ -15,6 +15,7 @@ var max_community_size = 0, //dimensione massima di una community
     dataProlific = [],
     axisX;
 var main_topics_comm = [];
+var main_topics_cluster = [];
 var graph;
 
 var prolificsKey = {
@@ -258,10 +259,12 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 
  				var avg = d3.mean(x, function(v){return v.value;});
  				var min = d3.min(x, function(v){return v.value;});
-        var max = d3.max(x, function(v){return v.value;});
+        		var max = d3.max(x, function(v){return v.value;});
 
 				main_topics_comm.push({ id: d.id, size: d.size, main_topics: x, statistics_common_topics: {avg: avg, max: max, min: min} });
 			});
+
+			console.log(main_topics_comm);
 
       // for (x in main_topics_comm) {
       //   for(avg in x) {
@@ -277,7 +280,7 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 			//a. main_topic all'interno di una community.
 			//b. nodi che condividono un certo topic.
 			//La dimensione della community identifica un cluster.
-			var main_topics_cluster = d3.nest()
+			main_topics_cluster = d3.nest()
 				.key(function(d){ return d.size; }).sortKeys((a, b) => d3.ascending(+a, +b))
 				.rollup(function(d){ return {
 						main_topics: {
@@ -296,6 +299,7 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
  				.sort(function(x, y){ return d3.ascending(Number(x.value), Number(y.value)); });
 			
 			console.log(main_topics_cluster);
+
 
 
 			$("input[type='number'][name='rangeSliderX']").prop('max', max_community_size);
@@ -332,6 +336,9 @@ function updateAll(){
 	if($('input:radio[id="stackBarChartID"]')[0].checked){
 		updateStackBar();
 	}
+	if($('input:radio[id="boxPlotID"]')[0].checked){
+		updateBoxPlot();
+	}
 }
 
 // update size-related forces
@@ -361,7 +368,7 @@ $(document).ready(function(){
     $('input[type=radio][name=typeOptions]').change(function(){
     	if($('input:radio[id="beeswarmID"]')[0].checked){
     		svg.selectAll("*").remove();
-		    initializeDisplay();
+		    initializeDisplay();		    
 		    width = +svg.node().getBoundingClientRect().width - margin.left - margin.right;
 		    height = +svg.node().getBoundingClientRect().height - margin.top - margin.bottom;
 		}

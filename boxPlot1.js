@@ -3,12 +3,16 @@ var yScale,
     xScale;    
 var barWidth = 30;
 
-for (c in main_topics_comm[main_topics])
-console.log(main_topics_comm[main_topics].avg);
+function updateBoxPlot() {
+
 // var globalCountsMax = [];
 // var globalCountsMin = [];
 // var beginning = 0;
 // var end = 80;
+
+// var data = main_topics_comm.map(function(d){
+//   return d.main_topics;
+// })
 
 
 // for (var mt in groupCounts) {
@@ -25,22 +29,22 @@ console.log(main_topics_comm[main_topics].avg);
   //   .domain(Object.keys(groupCounts));
 
 // Prepare the data for the box plots
-  var boxPlotData = [];
-  //groupCounts = main_topics_comm[x];
-  for (x in groupCounts) {
-    var localMin = x[min];
-    var localMax = x[max];
-    var localAvg = x[avg];
+  // var boxPlotData = [];
+  // //groupCounts = main_topics_comm[x];
+  // for (x in groupCounts) {
+  //   var localMin = x[min];
+  //   var localMax = x[max];
+  //   var localAvg = x[avg];
 
 
-    var obj = {};
-    obj["key"] = id;
-    obj["counts"] = x;
-    obj["quartile"] = boxQuartiles();
-    obj["whiskers"] = [localMin, localMax];
-    obj["color"] = colorScale(key);
-    boxPlotData.push(obj);
-  }
+  //   var obj = {};
+  //   obj["key"] = id;
+  //   obj["counts"] = x;
+  //   obj["quartile"] = boxQuartiles();
+  //   obj["whiskers"] = [localMin, localMax];
+  //   obj["color"] = colorScale(key);
+  //   boxPlotData.push(obj);
+  // }
 
 //input data
 /*main_topics_comm_filtered = main_topics_comm.filter(function(d) { return Number(d.size) >= from && Number(d.size) <= to; });
@@ -54,7 +58,7 @@ var sizes = dataProlific_filtered.map(function(d){return d.size;});*/
 
 // Compute an ordinal xScale for the keys in boxPlotData
 var sizes = dataProlific_filtered.map(function(d){return d.size;});
-  xStackBar = d3.scaleBand()
+  xScale = d3.scaleBand()
     .domain(sizes)
     .range([margin.left, width + margin.left])
     .padding(0.08)
@@ -66,8 +70,12 @@ var sizes = dataProlific_filtered.map(function(d){return d.size;});
 //     .padding(0.08)
 
 // Compute a global y scale based on the global counts
-  var globalmin = d3.min(main_topics_comm);
-  var globalmax = d3.max(main_topics_comm);
+  var globalmin = d3.min(main_topics_cluster, function(d) {
+    return d.value.main_topics_common.min
+    });
+  var globalmax = d3.max(main_topics_cluster, function(d) {
+    return d.value.main_topics_common.max
+    });
   var yScale = d3.scaleLinear()
     .domain([globalmin, globalmax])
     .range([height, 0]);
@@ -103,14 +111,14 @@ var sizes = dataProlific_filtered.map(function(d){return d.size;});
   var gr = svg.append("gr");
 
   // Draw the box plot vertical lines
-  var verticalLines = g.selectAll(".verticalLines")
-    .data(main_topics_comm.main_topics)
+  var verticalLines = gr.selectAll(".verticalLines")
+    .data(main_topics_cluster)
     .enter()
     .append("line")
     .attr("x1", function(datum) { return xScale(datum.key); })
-    .attr("y1", function(datum) { return yScale(datum.whiskers[0]); })
+    .attr("y1", function(datum) { return yScale(datum.value.main_topics_common.min); })
     .attr("x2", function(datum) { return xScale(datum.key); })
-    .attr("y2", function(datum) { return yScale(datum.whiskers[1]); })
+    .attr("y2", function(datum) { return yScale(datum.value.main_topics_common.max); })
     .attr("stroke", "#000")
     .attr("stroke-width", 1)
     .attr("fill", "none");
@@ -200,4 +208,7 @@ var sizes = dataProlific_filtered.map(function(d){return d.size;});
     return a - b;
   }
 
-  
+
+
+
+  }
