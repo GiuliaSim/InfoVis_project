@@ -122,3 +122,44 @@ html, body {
 		  stroke-opacity: 0.5;
 		  pointer-events: none;
 		}
+
+		.rs-label {
+		    position: relative;
+		    transform-origin: center center;
+		    display: block;
+		    width: 40px;
+		    height: 40px;
+		    background: transparent;
+		    border-radius: 50%;
+		    line-height: 30px;
+		    text-align: center;
+		    font-weight: bold;
+		    padding-top: 11px;
+		    box-sizing: border-box;
+		    border: 1.5px solid #007bff;
+		    margin-top: 5px;
+		    margin-left: -12px;
+		    left: attr(value);
+		    color: #000;
+		    font-style: normal;
+		    font-weight: normal;
+		    line-height: normal;
+		    font-size: 12px;
+		}
+
+		.range-slider{
+			margin-left: 10px
+		}
+
+		.box-minmax{
+		  margin-top: -8px;
+		  margin-left: 4px;
+		  display: flex;
+		  justify-content: space-between;
+		  font-size: 14px;
+		  color: #000000;
+		}
+
+		.svg-graph {
+		  border: 1px solid;
+		}

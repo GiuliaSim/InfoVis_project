@@ -154,8 +154,8 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 		  	// console.log("communities_attributes");
 		  	// console.log(communities_attributes);
 		  	// console.log("clusterSizeDistr");
-		  	console.log(clusterSizeDistr);
-		  	console.log(clusters);
+		  	//console.log(clusterSizeDistr);
+		  	//console.log(clusters);
 
  			//SLIDER AXIS X
 			// svgSlider = d3.select("#sliderID"),
@@ -228,7 +228,7 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 				main_topics_comm.push({ id: d.id, size: d.size, main_topics: x, statistics_common_topics: {avg: avg, max: max, min: min} });
 			});
 
-			//console.log(main_topics_comm);
+			console.log(main_topics_comm);
 
 			//Per ogni cluster calcola numero massimo, minimo e medio di:
 			//a. main_topic all'interno di una community.
@@ -252,7 +252,7 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 				.entries(main_topics_comm)
  				.sort(function(x, y){ return d3.ascending(Number(x.value), Number(y.value)); });
 			
-			//console.log(main_topics_cluster);
+			console.log(main_topics_cluster);
 
 
 			$("input[type='number'][name='rangeSliderX']").prop('max', max_community_size);
@@ -261,7 +261,9 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
  			//visualizeCommunities();
 
  			//d3forcegraph.js
- 			createSelectSize();
+ 			//createSelectSize();
+ 			initializeGraphDisplay()
+      			.then(() => initializeGraphSimulation());
     });
   });
 });
@@ -310,6 +312,8 @@ d3.select(window).on("resize", function(){
 });
 
 $(document).ready(function(){
+	$("#progressBarID").hide();
+
 	$('input[type=radio][name=typeAttribute]').change(function(){
 		if($('input:radio[id="mainTopicID"]')[0].checked){
 			isMainTopic = true;
