@@ -112,6 +112,10 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
           	main_topic_min = d3.min(nodes, function(d){return d.main_topic;})
           	main_topic_max = d3.max(nodes, function(d){return d.main_topic;})
 
+			colorMainTopic = d3.scaleSequential()
+				.domain([main_topic_min, main_topic_max])
+				.interpolator(d3.interpolateRainbow);
+
  			communities.map(function(community, i){
  				var community_attributes = [];
  				var size = community.length;
@@ -145,13 +149,13 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 		  	//Viene creato l'array di clusters identificati. 
     		clusterSizeDistr.map(function(d, i){clusters[i] = {cluster: i, size: d.size, count: d.communities.length};})
 
-		  	console.log("communities");
-		  	console.log(communities);
-		  	console.log("communities_attributes");
-		  	console.log(communities_attributes);
-		  	console.log("clusterSizeDistr");
+		  	// console.log("communities");
+		  	// console.log(communities);
+		  	// console.log("communities_attributes");
+		  	// console.log(communities_attributes);
+		  	// console.log("clusterSizeDistr");
 		  	console.log(clusterSizeDistr);
-		  	//console.log(clusters);
+		  	console.log(clusters);
 
  			//SLIDER AXIS X
 			// svgSlider = d3.select("#sliderID"),
@@ -224,7 +228,7 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 				main_topics_comm.push({ id: d.id, size: d.size, main_topics: x, statistics_common_topics: {avg: avg, max: max, min: min} });
 			});
 
-			console.log(main_topics_comm);
+			//console.log(main_topics_comm);
 
 			//Per ogni cluster calcola numero massimo, minimo e medio di:
 			//a. main_topic all'interno di una community.
@@ -248,7 +252,7 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 				.entries(main_topics_comm)
  				.sort(function(x, y){ return d3.ascending(Number(x.value), Number(y.value)); });
 			
-			console.log(main_topics_cluster);
+			//console.log(main_topics_cluster);
 
 
 			$("input[type='number'][name='rangeSliderX']").prop('max', max_community_size);
@@ -292,9 +296,13 @@ function updateAll(){
 
 // update size-related forces
 d3.select(window).on("resize", function(){
-	// width = +svg.node().getBoundingClientRect().width - margin.left - margin.right,
- //    height = +svg.node().getBoundingClientRect().height - margin.top - margin.bottom;
-	// widthSlider = +svgSlider.node().getBoundingClientRect().width - marginSlider.left - marginSlider.right,
+	width = +svg.node().getBoundingClientRect().width - margin.left - margin.right,
+    height = +svg.node().getBoundingClientRect().height - margin.top - margin.bottom;
+	if(communityID){
+      updateForcesGraph();
+    }
+
+    // widthSlider = +svgSlider.node().getBoundingClientRect().width - marginSlider.left - marginSlider.right,
 	// heightSlider = +svgSlider.node().getBoundingClientRect().height - marginSlider.top - marginSlider.bottom;
 	// sliderRange.width(widthSlider);
 	// slider.call(sliderRange);
@@ -302,6 +310,20 @@ d3.select(window).on("resize", function(){
 });
 
 $(document).ready(function(){
+	$('input[type=radio][name=typeAttribute]').change(function(){
+		if($('input:radio[id="mainTopicID"]')[0].checked){
+			isMainTopic = true;
+		}
+		else {
+			isMainTopic = false;
+		}
+		if(communityID){
+			expand = {};
+		    initializeGraphDisplay()
+      			.then(() => initializeGraphSimulation());
+	    }
+    });
+
 	// $("input[id='fromID']").val(from);
 	// $("input[id='toID']").val(to);
  //    $('input[type=number][name=rangeSliderX]').change(function(){

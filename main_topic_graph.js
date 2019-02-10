@@ -2,7 +2,8 @@ var nodeSize = 7,
     dr = 5;
 var communityID;
 var net, data, 
-    expand = {};
+    expand = {},
+    isMainTopic = true;
 
 // elements for data join
 var linkg = svg.append("g"),
@@ -13,9 +14,11 @@ var linkg = svg.append("g"),
 var div = d3.select("#tooltipId");
 
 //Selezione dei link che fanno parte di una specifica community
+//function linkInCommunity(value, nodes) {
 function linkInCommunity(value) {
   var source = value.source.id ? value.source.id : value.source;
   var target = value.target.id ? value.target.id : value.target;
+  
   return clusterSizeDistr[commGroupSize_id].communities[commGroup_id].nodes
     .map(function(d){return d.id})
     .includes(source) 
@@ -23,17 +26,27 @@ function linkInCommunity(value) {
     .map(function(d){return d.id})
     .includes(target) 
      && (source > target);
+
+  // return nodes
+  //   .map(function(d){return d.id})
+  //   .includes(source) 
+  //   && nodes
+  //   .map(function(d){return d.id})
+  //   .includes(target) 
+  //    && (source > target);
 }
 
 function createSelectSize(){
-  colorMainTopic = d3.scaleSequential()
-    .domain([main_topic_min, main_topic_max])
-    .interpolator(d3.interpolateRainbow);
-
   $("#comm_group").append("<option selected>Choose...</option>")
   for(var i=0;i<clusters.length;i++){
     $("#comm_group").append("<option value=\""+clusters[i].cluster+"_commGroup\">"+ clusters[i].size +"</option>")
+    if(i==0){
+      $("#range_label").append("<li class='active selected' value='"+clusters[i].cluster+"_commGroup'>"+clusters[i].size+"</li>");
+    } else {
+      $("#range_label").append("<li value='"+clusters[i].cluster+"_commGroup'>"+clusters[i].size+"</li>");
+    }
   }
+
 }
 
 //////////// FORCE SIMULATION //////////// 
@@ -42,10 +55,10 @@ function createSelectSize(){
 var simulation = d3.forceSimulation();
 
 // set up the simulation and event to update locations after each tick
-function initializeSimulation() {
+function initializeGraphSimulation() {
   simulation.nodes(net.nodes);
-  initializeForces();
-  simulation.on("tick", ticked);
+  initializeForcesGraph();
+  simulation.on("tick", tickedGraph);
 }
 
 // values for all forces
@@ -67,7 +80,7 @@ forceProperties = {
     }
 }
 
-function initializeForces() {
+function initializeForcesGraph() {
     // add forces and associate each with a name
     simulation
         .force("link", d3.forceLink())
@@ -75,11 +88,11 @@ function initializeForces() {
         .force("center", d3.forceCenter());
 
     // apply properties to each of the forces
-    updateForces();
+    updateForcesGraph();
 }
 
 // apply new force properties
-function updateForces() {
+function updateForcesGraph() {
     // get each force by name and update the properties
     simulation.force("center")
         .x(width * forceProperties.center.x)
@@ -92,6 +105,8 @@ function updateForces() {
         .id(function(d) {return d.index;})
         .distance(function(l, i) {
           var n1 = l.source, n2 = l.target;
+          var value1 = isMainTopic ? n1.main_topic : n1.prolific;
+          var value2 = isMainTopic ? n2.main_topic : n2.prolific;
           // larger distance for bigger groups:
           // both between single nodes and _other_ groups (where size of own node group still counts),
           // and between two group nodes.
@@ -102,12 +117,12 @@ function updateForces() {
           //
           // The latter was done to keep the single-link groups ('blue', rose, ...) close.
           return 30 +
-            Math.min(20 * Math.min((n1.size || 0),
-                                   (n2.size || 0)),
-                 -10 +
-                 30 * Math.min((n1.link_count || (n1.main_topic != n2.main_topic ? n1.group_data.link_count : 0)),
-                               (n2.link_count || (n1.main_topic != n2.main_topic ? n2.group_data.link_count : 0))),
-                 100);
+            Math.min(20 * Math.min((n1.size || (value1 != value2 && n1.group_data ? n1.group_data.size : 0)),
+                               (n2.size || (value1 != value2 && n2.group_data ? n2.group_data.size : 0))),
+            -10 +
+            30 * Math.min((n1.link_count || (value1 != value2 && n1.group_data ? n1.group_data.link_count : 0)),
+                           (n2.link_count || (value1 != value2 && n2.group_data ? n2.group_data.link_count : 0))),
+            100);
         })
         .links(net.links);
 
@@ -119,10 +134,14 @@ function updateForces() {
 //////////// DISPLAY ////////////
 
 // generate the svg objects and force simulation
-function initializeDisplay() {
+async function initializeGraphDisplay() {
     if (simulation) {simulation.stop();}
 
     communityID = clusterSizeDistr[commGroupSize_id].communities[commGroup_id].id;
+    // var nodes_filtered = communities_attributes
+    //   .filter(function(d){ return d.size == commGroupSize_id})
+    //   .flatMap(function(d){return d.nodes});
+    // var links_filtered = graph.links.filter(function(d){return linkInCommunity(d,nodes_filtered)});
     var nodes_filtered = clusterSizeDistr[commGroupSize_id].communities[commGroup_id].nodes;
     var links_filtered = graph.links.filter(linkInCommunity);
 
@@ -130,12 +149,14 @@ function initializeDisplay() {
       nodes: nodes_filtered,
       links: links_filtered
     }
-    net = network(data, net, getGroup, expand);
+    
+    net = await network(data, net, getGroup, expand)
+    // network(data, net, getGroup, expand)
+    //   .then(result => net = result);
 
     var r = d3.scaleLog()
       .domain([1, 600])
       .range([1, 10]);
-
 
     // EXIT
     // Remove old links
@@ -174,7 +195,7 @@ function initializeDisplay() {
             return "steelblue";
           }
         }
-        if($('input:radio[id="mainTopicID"]')[0].checked){
+        if(isMainTopic){
           return colorMainTopic(d.main_topic);
         }
       })
@@ -195,11 +216,16 @@ function initializeDisplay() {
         if(d.id){
           text = "<b>Id:</b> " + d.id + "<br/>" + "<b>Prolific:</b> " + d.prolific + "<br/>" + "<b>Main topic:</b> " + d.main_topic;
         }else{
-          text = "<b>Main topic:</b> " + d.main_topic + "<br/>" + "<b>Nodes:</b> " + d.size;
+          if(isMainTopic){
+            text = "<b>Main topic:</b> " + d.main_topic + "<br/>" + "<b>Nodes:</b> " + d.size;
+          }
+          if($('input:radio[id="prolificID"]')[0].checked){
+            text = "<b>Prolific:</b> " + d.prolific + "<br/>" + "<b>Nodes:</b> " + d.size;
+          }
         }
         div.html(text)  
-              .style("left", (d3.event.pageX-100) + "px")   
-              .style("top", (d3.event.pageY-140) + "px");
+              .style("left", (d3.event.pageX-80) + "px")   
+              .style("top", (d3.event.pageY-100) + "px");
       })
       .on("mouseout", function(d) {
         div.transition()    
@@ -208,9 +234,15 @@ function initializeDisplay() {
       })
       .on("click", function(d) {
         //console.log("node click", d, arguments, this, expand[d.main_topic]);
-        expand[d.main_topic] = !expand[d.main_topic];
-        initializeDisplay();
-        initializeSimulation();
+        if(isMainTopic){
+          expand[d.main_topic] = !expand[d.main_topic];
+        }
+        if($('input:radio[id="prolificID"]')[0].checked){
+          expand[d.prolific] = !expand[d.prolific];
+        }
+
+        initializeGraphDisplay()
+          .then(() => initializeGraphSimulation());
 
       })
       .call(d3.drag()
@@ -226,7 +258,12 @@ function initializeDisplay() {
 
 
 // update the display positions after each simulation tick
-function ticked() {
+function tickedGraph() {
+
+    var r = d3.scaleLog()
+        .domain([1, 600])
+        .range([1, 10]);
+
     link
         .attr("x1", function(d) { return d.source.x; })
         .attr("y1", function(d) { return d.source.y; })
@@ -234,8 +271,14 @@ function ticked() {
         .attr("y2", function(d) { return d.target.y; });
 
     node
-        .attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });
+        .attr("cx", function(d) { 
+          var s = d.size ? r(d.size) + dr + 2  : dr+2; 
+          return d.x = Math.max(s, Math.min(width + margin.left + margin.right - s, d.x)); 
+        })
+        .attr("cy", function(d) { 
+          var s = d.size ? r(d.size) + dr + 2 : dr+2; 
+          return d.y = Math.max(s, Math.min(height + margin.top + margin.bottom - s, d.y)); 
+        });
 }
 
 //////////// UI EVENTS ////////////
@@ -265,28 +308,20 @@ document.getElementById("comm_group").addEventListener("change",function(e) {
   if(e.target && e.target.nodeName == "SELECT") {
     commGroupSize_id = e.target.value.replace("_commGroup","");
     expand = {};
-    initializeDisplay();
-    initializeSimulation();
+    initializeGraphDisplay()
+      .then(() => initializeGraphSimulation());
   }
 });
 
-// update size-related forces
-d3.select(window).on("resize", function(){
-    width = +svg.node().getBoundingClientRect().width;
-    height = +svg.node().getBoundingClientRect().height;
-    if(communityID){
-      updateForces();
-    }
-});
-
 //convenience function to update everything (run after UI input)
-function updateAll() {
-    updateForces();
+function updateAllGraph() {
+    updateForcesGraph();
 }
 
 
 function nodeid(n) {
-  return n.size ? "_g_"+n.main_topic : n.id;
+  var value = isMainTopic ? n.main_topic : n.prolific;
+  return n.size ? "_g_"+ value : n.id;
 }
 
 function linkid(l) {
@@ -295,7 +330,10 @@ function linkid(l) {
   return u<v ? u+"|"+v : v+"|"+u;
 }
 
-function getGroup(n) { return n.main_topic; }
+function getGroup(n) {
+  var value = isMainTopic ? n.main_topic : n.prolific;
+  return value; 
+}
 
 // constructs the network to visualize
 function network(data, prev, index, expand) {
@@ -327,8 +365,14 @@ function network(data, prev, index, expand) {
   // determine nodes
   for (var k=0; k<data.nodes.length; ++k) {
     var n = data.nodes[k],
-        i = index(n),
-        l = gm[i] || (gm[i]=gn[i]) || (gm[i]={main_topic:i, size:0, nodes:[]});
+        i = index(n), 
+        l;
+
+        if (isMainTopic){
+          l = gm[i] || (gm[i]=gn[i]) || (gm[i]={main_topic:i, size:0, nodes:[]});
+        } else {
+          l = gm[i] || (gm[i]=gn[i]) || (gm[i]={prolific:i, size:0, nodes:[]});
+        }
 
     if (expand[i]) {
       // the node should be directly visible
@@ -352,9 +396,9 @@ function network(data, prev, index, expand) {
       }
       l.nodes.push(n);
     }
-  // always count group size as we also use it to tweak the force graph strengths/distances
+    // always count group size as we also use it to tweak the force graph strengths/distances
     l.size += 1;
-  n.group_data = l;
+    n.group_data = l;
   }
 
   for (i in gm) { gm[i].link_count = 0; }
@@ -382,3 +426,40 @@ function network(data, prev, index, expand) {
 
   return {nodes: nodes, links: links};
 }
+
+
+$(document).ready(function(){
+  $('input[type=range][id=commSizeRange]').change(function(){
+   commGroupSize_id = $(this).val();
+   commGroup_id = 0;
+   var size = clusters[commGroupSize_id].size;
+   var count = clusters[commGroupSize_id].count;
+   $('input[type=range][id=commRange]')[0].max = count - 1;
+
+   expand = {};
+    initializeGraphDisplay()
+      .then(() => initializeGraphSimulation());
+  })
+
+  $('input[type=range][id=commRange]').change(function(){
+    commGroup_id = $(this).val();
+    expand = {};
+    initializeGraphDisplay()
+      .then(() => initializeGraphSimulation());
+
+  })
+
+
+  var rangeSlider = document.getElementById("commSizeRange");
+  var rangeLabel = document.getElementById("commSizeLabel");
+
+  rangeSlider.addEventListener("input", showSliderValue, false);
+
+  function showSliderValue() {
+    var value = rangeSlider.value;
+    var size = clusters[value].size;
+    rangeLabel.innerHTML = size;
+    var bulletPosition = (rangeSlider.value /rangeSlider.max);
+    rangeLabel.style.left = (bulletPosition * 578) + "px";
+  }
+})
