@@ -3,7 +3,8 @@ var nodeSize = 7,
 var communityID;
 var net, data, 
     expand = {},
-    isMainTopic = true;
+    isMainTopic = true,
+    progressBar;
 
 // elements for data join
 var linkg = svg.append("g"),
@@ -36,18 +37,12 @@ function linkInCommunity(value) {
   //    && (source > target);
 }
 
-function createSelectSize(){
-  $("#comm_group").append("<option selected>Choose...</option>")
-  for(var i=0;i<clusters.length;i++){
-    $("#comm_group").append("<option value=\""+clusters[i].cluster+"_commGroup\">"+ clusters[i].size +"</option>")
-    if(i==0){
-      $("#range_label").append("<li class='active selected' value='"+clusters[i].cluster+"_commGroup'>"+clusters[i].size+"</li>");
-    } else {
-      $("#range_label").append("<li value='"+clusters[i].cluster+"_commGroup'>"+clusters[i].size+"</li>");
-    }
-  }
-
-}
+// function createSelectSize(){
+//   $("#comm_group").append("<option selected>Choose...</option>")
+//   for(var i=0;i<clusters.length;i++){
+//     $("#comm_group").append("<option value=\""+clusters[i].cluster+"_commGroup\">"+ clusters[i].size +"</option>")
+//   }
+// }
 
 //////////// FORCE SIMULATION //////////// 
 
@@ -56,6 +51,9 @@ var simulation = d3.forceSimulation();
 
 // set up the simulation and event to update locations after each tick
 function initializeGraphSimulation() {
+  $("#progressBarID").hide();
+  document.getElementById("svgID").style.visibility = "visible";
+  //$("#svgID").show();
   simulation.nodes(net.nodes);
   initializeForcesGraph();
   simulation.on("tick", tickedGraph);
@@ -145,12 +143,26 @@ async function initializeGraphDisplay() {
     var nodes_filtered = clusterSizeDistr[commGroupSize_id].communities[commGroup_id].nodes;
     var links_filtered = graph.links.filter(linkInCommunity);
 
+    $("#sizeID")[0].innerText = clusterSizeDistr[commGroupSize_id].size;
+
+    var num_main_topics = d3.nest()
+      .key(function(d){return d.main_topic;})
+      .rollup(function(d){return d.length;})
+      .entries(nodes_filtered);
+    $("#main_topicsID")[0].innerText = num_main_topics.length;
+
+
     var data = {
       nodes: nodes_filtered,
       links: links_filtered
     }
     
-    net = await network(data, net, getGroup, expand)
+    net = await network(data, net, getGroup, expand);
+
+    // await new Promise((resolve, reject) => {
+    //   net = network(data, net, getGroup, expand);
+    //   resolve();
+    // })
     // network(data, net, getGroup, expand)
     //   .then(result => net = result);
 
@@ -304,14 +316,14 @@ function dragended(d) {
 
 //Aggiunta dell'evento di click per far partire la simulazione
 //Selezionando la dimensione della community viene mostrato il force graph della prima community di quella dimensione
-document.getElementById("comm_group").addEventListener("change",function(e) {
-  if(e.target && e.target.nodeName == "SELECT") {
-    commGroupSize_id = e.target.value.replace("_commGroup","");
-    expand = {};
-    initializeGraphDisplay()
-      .then(() => initializeGraphSimulation());
-  }
-});
+// document.getElementById("comm_group").addEventListener("change",function(e) {
+//   if(e.target && e.target.nodeName == "SELECT") {
+//     commGroupSize_id = e.target.value.replace("_commGroup","");
+//     expand = {};
+//     initializeGraphDisplay()
+//       .then(() => initializeGraphSimulation());
+//   }
+// });
 
 //convenience function to update everything (run after UI input)
 function updateAllGraph() {
@@ -337,6 +349,8 @@ function getGroup(n) {
 
 // constructs the network to visualize
 function network(data, prev, index, expand) {
+  return new Promise((resolve, reject) => {
+      
   expand = expand || {};
   var gm = {},    // group map
       nm = {},    // node map
@@ -402,20 +416,18 @@ function network(data, prev, index, expand) {
   }
 
   for (i in gm) { gm[i].link_count = 0; }
+  
+  progressBar.set(50);
 
   // determine links
   for (k=0; k<data.links.length; ++k) {
     var e = data.links[k],
         u = index(e.source),
         v = index(e.target);
-        // s = data.nodes.filter(function(d){ return d.id == e.source; }),
-        // t = data.nodes.filter(function(d){ return d.id == e.target; }),
-        // u = index(s[0]),
-        // v = index(t[0]);
-  if (u != v) {
-    gm[u].link_count++;
-    gm[v].link_count++;
-  }
+    if (u != v) {
+      gm[u].link_count++;
+      gm[v].link_count++;
+    }
     u = expand[u] ? nm[e.source.id] : nm[u];
     v = expand[v] ? nm[e.target.id] : nm[v];
     var i = (u<v ? u+"|"+v : v+"|"+u),
@@ -423,20 +435,37 @@ function network(data, prev, index, expand) {
     l.size += 1;
   }
   for (i in lm) { links.push(lm[i]); }
+  
+  progressBar.set(100);
 
-  return {nodes: nodes, links: links};
+  //return {nodes: nodes, links: links};
+    resolve({nodes: nodes, links: links});
+  })
 }
 
 
 $(document).ready(function(){
+  progressBar = document.getElementById('progressBarID').ldBar;
+  
   $('input[type=range][id=commSizeRange]').change(function(){
-   commGroupSize_id = $(this).val();
-   commGroup_id = 0;
-   var size = clusters[commGroupSize_id].size;
-   var count = clusters[commGroupSize_id].count;
-   $('input[type=range][id=commRange]')[0].max = count - 1;
+    commGroupSize_id = $(this).val();
+    commGroup_id = 0;
+    var size = clusters[commGroupSize_id].size;
+    var count = clusters[commGroupSize_id].count;
+    var commRange = document.getElementById("commRange");
+    var commLabel = document.getElementById("commLabel");
+    commLabel.innerHTML = 1;
+    commLabel.style.left = 0;
+    commRange.value = 0;
+    commRange.max = count - 1;
+    $("#commRangeMax")[0].innerText = count;
 
-   expand = {};
+    progressBar.set(0);
+    $("#progressBarID").show();
+    document.getElementById("svgID").style.visibility = "hidden";
+    //$("#svgID").hide();
+
+    expand = {};
     initializeGraphDisplay()
       .then(() => initializeGraphSimulation());
   })
@@ -446,20 +475,26 @@ $(document).ready(function(){
     expand = {};
     initializeGraphDisplay()
       .then(() => initializeGraphSimulation());
-
   })
 
-
-  var rangeSlider = document.getElementById("commSizeRange");
-  var rangeLabel = document.getElementById("commSizeLabel");
-
-  rangeSlider.addEventListener("input", showSliderValue, false);
-
-  function showSliderValue() {
-    var value = rangeSlider.value;
+  $('input[type=range][id=commSizeRange]').on("input", function(){
+    var value = $(this).val();
     var size = clusters[value].size;
-    rangeLabel.innerHTML = size;
-    var bulletPosition = (rangeSlider.value /rangeSlider.max);
-    rangeLabel.style.left = (bulletPosition * 578) + "px";
-  }
+    var commSizeRange = document.getElementById("commSizeRange");
+    var commSizeLabel = document.getElementById("commSizeLabel");
+    commSizeLabel.innerHTML = size;
+    var bulletPosition = (commSizeRange.value /commSizeRange.max);
+    var widthCard = $("#cardID")[0].getBoundingClientRect().width;
+    commSizeLabel.style.left = (bulletPosition * (widthCard - 70)) + "px";
+  })
+
+  $('input[type=range][id=commRange]').on("input", function(){
+    var value = $(this).val();
+    var commRange = document.getElementById("commRange");
+    var commLabel = document.getElementById("commLabel");
+    commLabel.innerHTML = Number(value) + 1;
+    var bulletPosition = (commRange.value /commRange.max);
+    var widthCard = $("#cardID")[0].getBoundingClientRect().width;
+    commLabel.style.left = (bulletPosition * (widthCard - 70)) + "px";
+  })
 })

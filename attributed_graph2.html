@@ -8,6 +8,8 @@
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
   <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="stylesheet" type="text/css" href="progressBar/loading-bar.css"/>
+  <script type="text/javascript" src="progressBar/loading-bar.js"></script>
   <!--<script type="text/javascript" src="d3.v5.js"></script> -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://d3js.org/d3.v4.js"></script>
@@ -19,7 +21,7 @@
 <body>
 	<h1>Attributed Graph</h1>
 	 <div class="container-fluid">
-	    <div class="row">
+	    <!-- <div class="row">
 			<div class="col-md-12">
 				<div class="input-group mb-3">
   					<div class="input-group-prepend">
@@ -28,43 +30,69 @@
   					<select class="custom-select" id="comm_group"></select>
 				</div>
 			</div>
-		</div> 
-		<div class="row">
+		</div>  -->
+		<div class="row mt-2">
 			<div class="col-md-12">
-				<label for="commSizeRange">Community Size: </label>
-				<span id="commSizeLabel">1</span>
-				<input type="range" class="custom-range" min="0" max="36" id="commSizeRange" step="1" value="0">
-				<label for="commRange">Community</label>
-				<input type="range" class="custom-range" min="0" id="commRange" step="1" value="0">
-			</div>
-		</div>
-		<!-- <div class="row">
-			<div class="col-md-12">
-				<div class="input-group mb-3">
-  					<div class="range">
-					  <input id="range_size" type="range" steps="1" min="1" max="37">
-					<div>
-					<ul class="range-labels" id="range_label"></ul>
+				<div class="card" id="cardID">
+					<div class="card-body">
+						<h5 class="card-title"><b>Community Size:</b></h5>
+						<div class="range-slider">
+							<span id="commSizeLabel" class="rs-label">1</span>
+							<input type="range" class="custom-range" min="0" max="36" id="commSizeRange" step="1" value="0">
+						</div>
+						<h5 class="card-title"><b>Community Number: </b></h5>
+						<div class="range-slider">
+							<span id="commLabel" class="rs-label">1</span>
+							<input type="range" class="custom-range" min="0" max="16198" id="commRange" step="1" value="0">
+							<div class="box-minmax">
+								<span>1</span><span id="commRangeMax">16198</span>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>  -->
-		 <div class="row">
+		</div>
+		 <div class="row mt-2">
 			<div class="col-md-12">
-			  	<div class="custom-control custom-radio custom-control-inline">
-				  <input class="custom-control-input" type="radio" name="typeAttribute" id="prolificID" value="option1">
-				  <label class="custom-control-label" for="prolificID">Prolific</label>
-				</div>
-				<div class="custom-control custom-radio custom-control-inline">
-				  <input class="custom-control-input" type="radio" name="typeAttribute" id="mainTopicID" value="option2" checked>
-				  <label class="custom-control-label" for="mainTopicID">Main Topic</label>
+				<div class="card">
+					<div class="card-body">
+						<h5 class="card-title">Attribute: </h5>
+					  	<div class="custom-control custom-radio custom-control-inline">
+						  <input class="custom-control-input" type="radio" name="typeAttribute" id="prolificID" value="option1">
+						  <label class="custom-control-label" for="prolificID">Prolific</label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+						  <input class="custom-control-input" type="radio" name="typeAttribute" id="mainTopicID" value="option2" checked>
+						  <label class="custom-control-label" for="mainTopicID">Main Topic</label>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div> 
 
-		<div class="row"> 
-			<div class="col-12">
-				<svg id="svgID" width="100%" height="500"></svg>
+		<div class="row mt-2"> 
+			<div class="col-9">
+				<div id="progressBarID" class="ldBar label-center" data-value="0" data-preset="circle" style="width:50%;height:50%;margin:auto" hide></div>
+				<svg class="svg-graph" id="svgID" width="100%" height="500"></svg>
+			</div>
+			<div class="col-3">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="card-title">Details: </h5>
+					  	<table class="table table-sm ">
+						  <tbody>
+						    <tr>
+						      <th scope="row">Size</th>
+						      <td id="sizeID"></td>
+						    </tr>
+						    <tr>
+						      <th scope="row">Number of main topics</th>
+						      <td id="main_topicsID"></td>
+						    </tr>
+						  </tbody>
+						</table>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
