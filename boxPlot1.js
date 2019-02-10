@@ -3,7 +3,7 @@ var yScale,
     xScale;    
 var barWidth = 30;
 
-function updateBoxPlot() {
+function boxPlot() {
 
 // var globalCountsMax = [];
 // var globalCountsMin = [];
@@ -56,8 +56,9 @@ var sizes = dataProlific_filtered.map(function(d){return d.size;});*/
 //     }) * 1.1])
 //     .range([height, 0]);
 
+
 // Compute an ordinal xScale for the keys in boxPlotData
-var sizes = dataProlific_filtered.map(function(d){return d.size;});
+var sizes = main_topics_cluster.map(function(d){return d.key;});
   xScale = d3.scaleBand()
     .domain(sizes)
     .range([margin.left, width + margin.left])
@@ -100,15 +101,17 @@ var sizes = dataProlific_filtered.map(function(d){return d.size;});
     // append the svg obgect to the body of the page
 	// appends a 'group' element to 'svg'
 	// moves the 'group' element to the top left margin
-	var svg = d3.select("body").append("svg")
-  	  .attr("width", width + margin.left + margin.right)
-    	.attr("height", height + margin.top + margin.bottom)
-	  .append("g")
-  	  .attr("transform",
-    	      "translate(" + margin.left + "," + margin.top + ")");
+	
+  // var quartiles = (main_topics_comm, function(d) {
+  //   return [
+  //     d3.quantile(d.value.main_topics_common, .25),
+  //     d3.quantile(d, .5),
+  //     d3.quantile(d, .75)
+  //   ];
+  // }
 
   // append a group for the box plot elements
-  var gr = svg.append("gr");
+  var gr = svg.append("g");
 
   // Draw the box plot vertical lines
   var verticalLines = gr.selectAll(".verticalLines")
@@ -123,9 +126,29 @@ var sizes = dataProlific_filtered.map(function(d){return d.size;});
     .attr("stroke-width", 1)
     .attr("fill", "none");
 
-  // Draw the boxes of the box plot, filled and on top of vertical lines
-  /*var rects = g.selectAll("rect")
-    .data(boxPlotData)
+// var groupCounts = main_topics_comm;
+// // Sort group counts so quantile methods work
+//   for(main_topics.value in groupCounts) {
+//     var groupCount = groupCounts.value;
+//     groupCounts.value = groupCount.sort(sortNumber);
+//   }
+
+// var quartile = boxQuartiles(groupCount);
+
+  function boxQuartiles(d) {
+    return [
+    d3.quantile(d, .25),
+    d3.quantile(d, .5),
+    d3.quantile(d, .75)
+  ];
+}
+
+//var quartiles = boxQuartiles(main_topics_comm.main_topics.value);
+
+
+  //Draw the boxes of the box plot, filled and on top of vertical lines
+  var rects = gr.selectAll("rect")
+    .data(groupCount)
     .enter()
     .append("rect")
     .attr("width", barWidth)
@@ -139,9 +162,9 @@ var sizes = dataProlific_filtered.map(function(d){return d.size;});
     .attr("fill", function(datum) { return datum.color; })
     .attr("stroke", "#000")
     .attr("stroke-width", 1);
-*/
+
   // Now render all the horizontal lines at once - the whiskers and the median
-  /*var horizontalLineConfigs = [
+  var horizontalLineConfigs = [
     // Top whisker
     {
       x1: function(datum) { return xScale(datum.key) - barWidth/2 },
@@ -180,28 +203,32 @@ var sizes = dataProlific_filtered.map(function(d){return d.size;});
       .attr("stroke", "#000")
       .attr("stroke-width", 1)
       .attr("fill", "none");
-  }*/
+  }
 
   // Move the left axis over 25 pixels, and the top axis over 35 pixels
   //var axisY = svg.append("g").attr("transform", "translate(25,0)");
   //var axisX = svg.append("g").attr("transform", "translate(35,0)");
 
-  //x-axis
-  svg.append("gr")
-     .attr("transform", "translate(0," + height + ")")
-     .call(d3.axisBottom(xScale));
+  // add the x Axis
+  svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(xScale))
+      .append("text")
+      .attr("x", (width + margin.left) / 2)
+      .attr("y", margin.top)
+      .attr("dx", "0.32em")
+      .attr("fill", "#000")
+      .attr("font-weight", "bold")
+      .attr("text-anchor", "start")
+      .text("Size");
 
-  // Add the Y Axis
-  svg.append("gr")
-     .call(d3.axisLeft(yScale));
+  // add the y Axis
+  svg.append("g")
+      .attr("transform", "translate(" + margin.left + ",0)")
+      .call(d3.axisLeft(yScale));
+
         
-	function boxQuartiles(d) {
-  	return [
-    	d3.quantile(d, .25),
-    	d3.quantile(d, .5),
-    	d3.quantile(d, .75)
-  	];
-	}
+
     
   // Perform a numeric sort on an array
   function sortNumber(a,b) {
@@ -212,3 +239,10 @@ var sizes = dataProlific_filtered.map(function(d){return d.size;});
 
 
   }
+
+function updateBoxPlot(){
+  svg.selectAll("*").remove();
+  width = +svg.node().getBoundingClientRect().width - margin.left - margin.right,
+  height = +svg.node().getBoundingClientRect().height - margin.top - margin.bottom;
+  boxPlot();
+}

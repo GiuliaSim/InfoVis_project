@@ -249,7 +249,9 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 			//size: dimensione_community 
 			//main_topics: {key: main_topic_id, value: count_nodi}
 			//statistics_common_topics: {avg: avg, max: max, min: min}
+
 			
+
 			d3.map(communities_attributes, function(d){
 				var x = d3.nest()
 					.key(function(x){ return x.main_topic; })
@@ -260,11 +262,15 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
  				var avg = d3.mean(x, function(v){return v.value;});
  				var min = d3.min(x, function(v){return v.value;});
         		var max = d3.max(x, function(v){return v.value;});
+        		var quartile25 = quart25(x, function(v) {return v.value;});
+        		var quartile50 = quart50(x, function(v) {return v.value;});
+        		var quartile75 = quart75(x, function(v) {return v.value;});
 
-				main_topics_comm.push({ id: d.id, size: d.size, main_topics: x, statistics_common_topics: {avg: avg, max: max, min: min} });
+				main_topics_comm.push({ id: d.id, size: d.size, main_topics: x, statistics_common_topics: {avg: avg, max: max, min: min, quartile25: quartile25, quartile50: quartile50, quartile75: quartile75} });
 			});
 
 			console.log(main_topics_comm);
+
 
       // for (x in main_topics_comm) {
       //   for(avg in x) {
@@ -286,19 +292,40 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 						main_topics: {
 							avg: d3.mean(d, function(x) { return x.main_topics.length; }), 
 							max: d3.max(d, function(x) { return x.main_topics.length; }), 
-							min: d3.min(d, function(x) { return x.main_topics.length; })
+							min: d3.min(d, function(x) { return x.main_topics.length; }),
+							quartile25: quart25(d, function(x) { return x.main_topics.length; }),
+							quartile50: quart50(d, function(x) { return x.main_topics.length; }),
+							quartile75: quart75(d, function(x) { return x.main_topics.length; })
 						},
 						main_topics_common: {
 							avg: d3.mean(d, function(x) { return x.statistics_common_topics.avg; }), 
 							max: d3.max(d, function(x) { return x.statistics_common_topics.max; }), 
-							min: d3.min(d, function(x) { return x.statistics_common_topics.min; })
+							min: d3.min(d, function(x) { return x.statistics_common_topics.min; }),
+							quartile25: quart25(d, function(x) { return x.statistics_common_topics.quartile25; }),
+							quartile50: quart50(d, function(x) { return x.statistics_common_topics.quartile50; }),
+							quartile75: quart75(d, function(x) { return x.statistics_common_topics.quartile75; })
 						}
+
+
+
+						// main_topics_values: {
+						//  	id: (d, function(x) {return x.main_topics.key; }),
+						//  	mt_value: (d, function(x) {return x.main_topics.value; }),
+
+
+						 	
+						//  }
+
 					}; 
 				})
 				.entries(main_topics_comm)
  				.sort(function(x, y){ return d3.ascending(Number(x.value), Number(y.value)); });
 			
 			console.log(main_topics_cluster);
+			for (x in main_topics_cluster) {
+				console.log(x.value.main_topics_common.quartile25);
+			}
+			
 
 
 
@@ -309,6 +336,21 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
     });
   });
 });
+
+function quart25(q) {
+	return d3.quantile(q, .25);
+}
+
+console.log(quart25([2, 3, 4, 5]));
+
+function quart50(q) {
+	return d3.quantile(q, .5);
+}
+
+function quart75(q) {
+	return d3.quantile(q, .75);
+}
+
 
 function changeRange(){
 	var range = sliderRange.value();
