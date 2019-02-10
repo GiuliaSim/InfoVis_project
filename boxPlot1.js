@@ -135,20 +135,21 @@ var sizes = main_topics_cluster.map(function(d){return d.key;});
 
 // var quartile = boxQuartiles(groupCount);
 
-  function boxQuartiles(d) {
+  /*function boxQuartiles(d) {
     return [
     d3.quantile(d, .25),
     d3.quantile(d, .5),
     d3.quantile(d, .75)
   ];
-}
+}*/
+
 
 //var quartiles = boxQuartiles(main_topics_comm.main_topics.value);
 
 
   //Draw the boxes of the box plot, filled and on top of vertical lines
   var rects = gr.selectAll("rect")
-    .data(groupCount)
+    .data(main_topics_cluster)
     .enter()
     .append("rect")
     .attr("width", barWidth)
