@@ -141,7 +141,7 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 		  	// console.log(communities_attributes);
 		  	// console.log("clusterSizeDistr");
 		  	// console.log(clusterSizeDistr);
-		  	//console.log(clusters);
+		  	// console.log(clusters);
 
  			//SLIDER AXIS X
 			svgSlider = d3.select("#sliderID"),
@@ -251,11 +251,6 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 			//size: dimensione_community 
 			//main_topics: {key: main_topic_id, value: count_nodi}
 			//statistics_common_topics: {avg: avg, max: max, min: min}
-
-			console.log(communities_attributes);
-			
-			// array_main_topics = (communities_attributes)
-
 			d3.map(communities_attributes, function(d){
 				var x = d3.nest()
 					.key(function(x){ return x.main_topic; })
@@ -278,8 +273,7 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 				main_topics_comm.push({ id: d.id, size: d.size, main_topics: x, statistics_common_topics: {avg: avg, max: max, min: min, quartile25: quartile25, quartile50: quartile50, quartile75: quartile75}});
 			});
 
-			console.log(main_topics_comm);
-			//console.log(communities_attributes);
+			//console.log(main_topics_comm);
 
       // for (x in main_topics_comm) {
       //   for(avg in x) {
@@ -295,21 +289,21 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 			//a. main_topic all'interno di una community.
 			//b. nodi che condividono un certo topic.
 			//La dimensione della community identifica un cluster.
-			
-			
-        		//console.log (array_main_topics);
-
-//!!!! come ordinare i valori per calcolo quartile? !!!!
 			main_topics_cluster = d3.nest()
 				.key(function(d){ return d.size; }).sortKeys((a, b) => d3.ascending(+a, +b))
 				.rollup(function(d){ 
 					
-					var quartiles = d.flatMap(function(x) {return [x.statistics_common_topics.quartile25, x.statistics_common_topics.quartile50, x.statistics_common_topics.quartile75];}).sort();
+					var quartiles = d.flatMap(function(x) {return [x.statistics_common_topics.quartile25, x.statistics_common_topics.quartile50, x.statistics_common_topics.quartile75];})
+									.sort((a, b) => d3.ascending(+a, +b));
 					// var q50 = d.map(function(x) {return x.statistics_common_topics.quartile50;}).sort();
 					// var q75 = d.map(function(x) {return x.statistics_common_topics.quartile75;}).sort();
 
+					var q1 = d3.quantile(quartiles, 0.25);
+					var q2 = d3.quantile(quartiles, 0.5);
+					var q3 = d3.quantile(quartiles, 0.75);
 
-					//var d.
+					//console.log("Size: " + d[0].size + " Q25: " + q1 + " Q50: " + q2 + " Q75: " + q3);
+
 					return {
 						main_topics: {
 							avg: d3.mean(d, function(x) { return x.main_topics.length; }), 
@@ -362,12 +356,13 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 				})
 				.entries(main_topics_comm)
  				.sort(function(x, y){ return d3.ascending(Number(x.value), Number(y.value)); });
-			console.log(main_topics_comm);
-			console.log(main_topics_cluster);
-			console.log(d3.quantile([1,2,3,4,5,7,7], 0.25));
-			console.log(d3.quantile([1,2,3,4,5,7,7], 0.5));
-			console.log(d3.quantile([1,2,3,4,5,7,7], 0.75));
-			console.log(d3.mean([1,2,3,4,5,7,7]));
+			
+			// console.log(main_topics_comm);
+			// console.log(main_topics_cluster);
+			// console.log(d3.quantile([1,2,3,4,5,7,7], 0.25));
+			// console.log(d3.quantile([1,2,3,4,5,7,7], 0.5));
+			// console.log(d3.quantile([1,2,3,4,5,7,7], 0.75));
+			// console.log(d3.mean([1,2,3,4,5,7,7]));
 			// for (x in main_topics_cluster) {
 			// 	console.log(x.value.main_topics_common.quartile25);
 			// }
@@ -460,7 +455,7 @@ $(document).ready(function(){
 		    width = +svg.node().getBoundingClientRect().width - margin.left - margin.right;
 		    height = +svg.node().getBoundingClientRect().height - margin.top - margin.bottom;
 		}
-    	if($('input:radio[id="stackBarChartID"]')[0].checked){
+    	if(($('input:radio[id="stackBarChartID"]')[0].checked) || ($('input:radio[id="boxPlotID"]')[0].checked)){
 			$("#scaleOptionsID").hide();
 		}else{
 			$("#scaleOptionsID").show();

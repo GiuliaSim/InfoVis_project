@@ -67,12 +67,36 @@ html, body {
 		}*/
 		div.tooltip {	
 		    position: absolute;	
-		    border: 1px solid #bbbbbb;	
+		    border: 1px solid #bbbbbb;
+		    border-radius:8px;	
 		    background-color: white;
 		    font-family: Arial, Helvetical, sans-serif;
 		    padding: 10px;
 		    max-width: 160px;
-		    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+		    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
+		    box-sizing:border-box;
+		}
+
+		.tooltip i {
+		    position:absolute;
+		    top:100%;
+		    left:50%;
+		    margin-left:-12px;
+		    width:24px;
+		    height:12px;
+		    overflow:hidden;
+		}
+
+		.tooltip i::after {
+		    content:'';
+		    position:absolute;
+		    width:10px;
+		    height:10px;
+		    left:50%;
+		    transform:translate(-50%,-50%) rotate(45deg);
+		    background-color: white;
+		    border:1px solid #bbbbbb;
+		    box-shadow:0 1px 8px rgba(0,0,0,0.3);
 		}
 
 /*		.track {
@@ -162,4 +186,14 @@ html, body {
 
 		.svg-graph {
 		  border: 1px solid;
+		}
+
+		.grid line {
+		  stroke: lightgrey;
+		  stroke-opacity: 0.2;
+		  shape-rendering: crispEdges;
+		}
+
+		.grid path {
+		  stroke-width: 0;
 		}
