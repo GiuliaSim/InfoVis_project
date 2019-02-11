@@ -269,10 +269,11 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
         		//var a_main_topics = (x, function(v) {return array_main_topics.push(v.value);});
         		//array_main_topics.push(x, function(v) {return v.value;});
         		//console.log(array_main_topics);
-        		var quartile25 = d3.quantile(x.sort(), 0.25, function(v) {return v.value;});
+        		var value = x.map(function(v){return v.value;});
+        		var quartile25 = d3.quantile(value, 0.25);
         		//quart25(x, function(v) {return v.value;});
-        		var quartile50 = d3.quantile(x.sort(), 0.50, function(v) {return v.value;});
-        		var quartile75 = d3.quantile(x.sort(), 0.75, function(v) {return v.value;});
+        		var quartile50 = d3.quantile(value, 0.50);
+        		var quartile75 = d3.quantile(value, 0.75);
 
 				main_topics_comm.push({ id: d.id, size: d.size, main_topics: x, statistics_common_topics: {avg: avg, max: max, min: min, quartile25: quartile25, quartile50: quartile50, quartile75: quartile75}});
 			});
@@ -302,16 +303,22 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 			main_topics_cluster = d3.nest()
 				.key(function(d){ return d.size; }).sortKeys((a, b) => d3.ascending(+a, +b))
 				.rollup(function(d){ 
+					
+					var quartiles = d.flatMap(function(x) {return [x.statistics_common_topics.quartile25, x.statistics_common_topics.quartile50, x.statistics_common_topics.quartile75];}).sort();
+					// var q50 = d.map(function(x) {return x.statistics_common_topics.quartile50;}).sort();
+					// var q75 = d.map(function(x) {return x.statistics_common_topics.quartile75;}).sort();
+
+
 					//var d.
 					return {
 						main_topics: {
 							avg: d3.mean(d, function(x) { return x.main_topics.length; }), 
 							max: d3.max(d, function(x) { return x.main_topics.length; }), 
-							min: d3.min(d, function(x) { return x.main_topics.length; }),
+							min: d3.min(d, function(x) { return x.main_topics.length; })
 							//non so se va ordinato d o x...
-							quartile25: d3.quantile(d, 0.25, function(x) {var sortedx = x.main_topics.sort(); return sortedx.length; }),
-							quartile50: d3.quantile(d, 0.50, function(x) {var sortedx = x.main_topics.sort(); return sortedx.length; }),
-							quartile75: d3.quantile(d, 0.75, function(x) {var sortedx = x.main_topics.sort(); return sortedx.length; })
+							// quartile25: d3.quantile(d, 0.25, function(x) {var sortedx = x.main_topics.sort(); return sortedx.length; }),
+							// quartile50: d3.quantile(d, 0.50, function(x) {var sortedx = x.main_topics.sort(); return sortedx.length; }),
+							// quartile75: d3.quantile(d, 0.75, function(x) {var sortedx = x.main_topics.sort(); return sortedx.length; })
 
 							// quartile25: quart25(d, function(x) { return x.main_topics.length; }),
 							// quartile50: quart50(d, function(x) { return x.main_topics.length; }),
@@ -321,11 +328,15 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 							avg: d3.mean(d, function(x) { return x.statistics_common_topics.avg; }), 
 							max: d3.max(d, function(x) { return x.statistics_common_topics.max; }), 
 							min: d3.min(d, function(x) { return x.statistics_common_topics.min; }),
+							quartile25: d3.quantile(quartiles, 0.25),
+							quartile50: d3.quantile(quartiles, 0.5),
+							quartile75: d3.quantile(quartiles, 0.75)
+
 
 							//c'è qualcosa che non va nell'ordinamento...
-							quartile25: d3.quantile(d.sort(), 0.25, function(x) {return x.statistics_common_topics.quartile25; }),
-							quartile50: d3.quantile(d.sort(), 0.50, function(x) {return x.statistics_common_topics.quartile50; }),
-							quartile75: d3.quantile(d.sort(), 0.75, function(x) {return x.statistics_common_topics.quartile75 })
+							// quartile25: d3.mean(d, function(x) { return x.statistics_common_topics.quartile25; }), 
+							// quartile50: d3.mean(d, function(x) { return x.statistics_common_topics.quartile50; }), 
+							// quartile75: d3.mean(d, function(x) { return x.statistics_common_topics.quartile75; })
 							// quartile25: quart25(d.main_topics.value, function(x) { return x.main_topics.value; }),
 							// quartile50: quart50(d, function(x) { return x.main_topics.value; }),
 							// quartile75: quart75(d, function(x) { return x.main_topics.value; })
@@ -353,9 +364,10 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
  				.sort(function(x, y){ return d3.ascending(Number(x.value), Number(y.value)); });
 			console.log(main_topics_comm);
 			console.log(main_topics_cluster);
-			console.log(d3.quantile([3,2,1], 0.25));
-			console.log(d3.quantile([3,2,1], 0.5));
-			console.log(d3.quantile([3,2,1], 0.75));
+			console.log(d3.quantile([1,2,3,4,5,7,7], 0.25));
+			console.log(d3.quantile([1,2,3,4,5,7,7], 0.5));
+			console.log(d3.quantile([1,2,3,4,5,7,7], 0.75));
+			console.log(d3.mean([1,2,3,4,5,7,7]));
 			// for (x in main_topics_cluster) {
 			// 	console.log(x.value.main_topics_common.quartile25);
 			// }

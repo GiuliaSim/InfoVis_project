@@ -26,10 +26,11 @@ var prolificsKey = {
 	0 : "Low"
 };
 
+
 var colorProlific = {
-	100 : "steelblue",
-	50 : "#a2c0d9",
-	0 : "#dae6f0"
+	100 : "#2a4f6e",
+	50 : "#528cbc",
+	0 : "#a7c4dd"
 };
 
 /*var prolificsCategory = [0,50,100];
