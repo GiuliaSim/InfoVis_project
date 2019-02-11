@@ -302,7 +302,7 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
 			main_topics_cluster = d3.nest()
 				.key(function(d){ return d.size; }).sortKeys((a, b) => d3.ascending(+a, +b))
 				.rollup(function(d){ 
-					var d.
+					//var d.
 					return {
 						main_topics: {
 							avg: d3.mean(d, function(x) { return x.main_topics.length; }), 
