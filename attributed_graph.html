@@ -21,92 +21,84 @@
 <body>
 	<div class="container-fluid">
 		<div class="m-3"><h1>Attributed Graph</h1></div>
-		<fieldset class="form-group">
-				<div class="">
-				  <div class="card-body">
-					<div class="form-group">
-					  	<div class="custom-control custom-radio custom-control-inline">
-						  <input class="custom-control-input" type="radio" name="typeOptions" id="beeswarmID" value="option1"
-						  checked>
-						  <label class="custom-control-label" for="beeswarmID">Beeswarm</label>
-						</div>
-						<div class="custom-control custom-radio custom-control-inline">
-						  <input class="custom-control-input" type="radio" name="typeOptions" id="histogramID" value="option2">
-						  <label class="custom-control-label" for="histogramID">Histogram</label>
-						</div>
-						<div class="custom-control custom-radio custom-control-inline">
-						  <input class="custom-control-input" type="radio" name="typeOptions" id="stackBarChartID" value="option3">
-						  <label class="custom-control-label" for="stackBarChartID">Stacked Bar</label>
-						</div>
-						<div class="custom-control custom-radio custom-control-inline">
-						  <input class="custom-control-input" type="radio" name="typeOptions" id="boxPlotID" value="option4">
-						  <label class="custom-control-label" for="boxPlotID">Box Plot</label>
+		<div class="row mb-3">
+			<div class="col-md-6">
+				<div class="card">
+					<div class="card-body">
+		  				<h5 class="card-title font-italic">Visualizing Community Distributions</h5>
+						<div class="form-group">
+						  	<div class="custom-control custom-radio custom-control-inline">
+							  <input class="custom-control-input" type="radio" name="typeOptions" id="beeswarmID" value="option1"
+							  checked>
+							  <label class="custom-control-label" for="beeswarmID">Beeswarm</label>
+							</div>
+							<div class="custom-control custom-radio custom-control-inline">
+							  <input class="custom-control-input" type="radio" name="typeOptions" id="histogramID" value="option2">
+							  <label class="custom-control-label" for="histogramID">Histogram</label>
+							</div>
 						</div>
 					</div>
-				  	<div class="card">
-					  	<div class="card-body">
-					  		<h5 class="card-title"><b>Customize axis x</b></h5>
-							<div class="form-group" id="scaleOptionsID">
-							  	<div class="custom-control custom-radio custom-control-inline">
-								  <input class="custom-control-input" type="radio" name="scaleOptions" id="squareScale" value="sqrt" checked>
-								  <label class="custom-control-label" for="squareScale">Square Root</label>
-								</div>
-								<div class="custom-control custom-radio custom-control-inline">
-								  <input class="custom-control-input" type="radio" name="scaleOptions" id="linearScale" value="linear">
-								  <label class="custom-control-label" for="linearScale">Linear</label>
-								</div>
-								<div class="custom-control custom-radio custom-control-inline">
-								  <input class="custom-control-input" type="radio" name="scaleOptions" id="powerScale" value="power2">
-								  <label class="custom-control-label" for="powerScale">Power2</label>
-								</div>
-							</div>
-							<div class="input-group align-items-center">
-								<div class="input-group input-group-sm mb-3 col-md-6">
-								  <div class="input-group-prepend">
-								    <span class="input-group-text">From</span>
-								  </div>
-								  <input type="number" class="form-control" id="fromID" name="rangeSliderX" min="0">
-								</div>
-								  <div class="input-group input-group-sm mb-3 col-md-6">
-								  <div class="input-group-prepend">
-								    <span class="input-group-text">To</span>
-								  </div>
-								  <input type="number" class="form-control" id="toID" name="rangeSliderX" min="1">
-								</div>
-								<svg id="sliderID" width="100%" height="60"></svg>
-							</div>
-						</div>
-				  	</div>
-				  </div>
-				</div>
-		</fieldset>
-	    <!-- <div class="row">
-			<div class="col-md-12">
-				<div class="input-group mb-3">
-  					<div class="input-group-prepend">
-    					<label class="input-group-text" for="comm_group">Community size</label>
-  					</div>
-  					<select class="custom-select" id="comm_group"></select>
 				</div>
 			</div>
-		</div> -->
-		<div class="row"> 
+			<div class="col-md-6">
+				<div class="card">
+					<div class="card-body">
+		  				<h5 class="card-title font-italic">Visualizing Attributes Distributions</h5>
+						<div class="form-group">
+							<div class="custom-control custom-radio custom-control-inline">
+							  <input class="custom-control-input" type="radio" name="typeOptions" id="stackBarChartID" value="option3">
+							  <label class="custom-control-label" for="stackBarChartID">Stacked Bar - Prolific</label>
+							</div>
+							<div class="custom-control custom-radio custom-control-inline">
+							  <input class="custom-control-input" type="radio" name="typeOptions" id="boxPlotID" value="option4">
+							  <label class="custom-control-label" for="boxPlotID">Box Plot - Main Topic</label>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	  	<div class="card">
+		  	<div class="card-body">
+		  		<h5 class="card-title font-italic">Customize axis x</h5>
+				<div class="form-group" id="scaleOptionsID">
+				  	<div class="custom-control custom-radio custom-control-inline">
+					  <input class="custom-control-input" type="radio" name="scaleOptions" id="squareScale" value="sqrt" checked>
+					  <label class="custom-control-label" for="squareScale">Square Root</label>
+					</div>
+					<div class="custom-control custom-radio custom-control-inline">
+					  <input class="custom-control-input" type="radio" name="scaleOptions" id="linearScale" value="linear">
+					  <label class="custom-control-label" for="linearScale">Linear</label>
+					</div>
+					<div class="custom-control custom-radio custom-control-inline">
+					  <input class="custom-control-input" type="radio" name="scaleOptions" id="powerScale" value="power2">
+					  <label class="custom-control-label" for="powerScale">Power2</label>
+					</div>
+				</div>
+				<div class="input-group align-items-center">
+					<div class="input-group input-group-sm mb-3 col-md-6">
+					  <div class="input-group-prepend">
+					    <span class="input-group-text">From</span>
+					  </div>
+					  <input type="number" class="form-control" id="fromID" name="rangeSliderX" min="0">
+					</div>
+					  <div class="input-group input-group-sm mb-3 col-md-6">
+					  <div class="input-group-prepend">
+					    <span class="input-group-text">To</span>
+					  </div>
+					  <input type="number" class="form-control" id="toID" name="rangeSliderX" min="1">
+					</div>
+					<svg id="sliderID" width="100%" height="60"></svg>
+				</div>
+			</div>
+		</div>
+		<div class="row mt-3"> 
 			<div class="col-12">
 				<svg id="svgID" width="100%" height="500"></svg>
 			</div>
 		</div>
 	</div>
-	<div class="tooltip" style="opacity: 0;" id="tooltipId">
-		<!-- <p class="text-center font-italic">Size 11000</p>
-		<table class="table table-sm"><tbody>
-			<tr><th scope="row">Max</th><td>500</td></tr>
-		    <tr><th scope="row">Third Quartile</th><td>300</td></tr>
-		    <tr><th scope="row">Median</th><td>300</td></tr>
-		    <tr><th scope="row">First Quartile</th><td>10</td></tr>
-		    <tr><th scope="row">Min</th><td>1</td></tr>
-		</tbody></table>
-		<i><i> -->
-	</div>
+	<div class="tooltip" style="opacity: 0;" id="tooltipId"></div>
 	<script type="text/javascript" src="read_data.js"></script>
     <!-- <script type="text/javascript" src="d3forcegraph.js"></script>-->
 	<script type="text/javascript" src="communityLayout.js"></script>

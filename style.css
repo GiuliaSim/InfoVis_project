@@ -197,3 +197,8 @@ html, body {
 		.grid path {
 		  stroke-width: 0;
 		}
+
+		.table-label{
+			font-size: 14px !important;
+			
+		}

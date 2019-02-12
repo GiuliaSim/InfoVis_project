@@ -32,7 +32,7 @@ function initializeValues(){
 
     var r = d3.scaleLog()
       .domain([1, max_community_size])
-      .range([1, 10]);
+      .range([0.01, 10]);
 
     communities_attributes.map(function(d){
       var size = d.size;
@@ -58,7 +58,7 @@ function initializeValues(){
     // });
 
     nodes_filtered = nodes.filter(function(d){
-      return d.size > 4;
+      return d.size > 3;
     });
 } 
 

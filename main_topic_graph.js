@@ -3,8 +3,7 @@ var nodeSize = 7,
 var communityID;
 var net, data, 
     expand = {},
-    isMainTopic = true,
-    progressBar;
+    isMainTopic = true;
 
 // elements for data join
 var linkg = svg.append("g"),
@@ -51,9 +50,6 @@ var simulation = d3.forceSimulation();
 
 // set up the simulation and event to update locations after each tick
 function initializeGraphSimulation() {
-  $("#progressBarID").hide();
-  document.getElementById("svgID").style.visibility = "visible";
-  //$("#svgID").show();
   simulation.nodes(net.nodes);
   initializeForcesGraph();
   simulation.on("tick", tickedGraph);
@@ -132,7 +128,7 @@ function updateForcesGraph() {
 //////////// DISPLAY ////////////
 
 // generate the svg objects and force simulation
-async function initializeGraphDisplay() {
+function initializeGraphDisplay() {
     if (simulation) {simulation.stop();}
 
     communityID = clusterSizeDistr[commGroupSize_id].communities[commGroup_id].id;
@@ -144,6 +140,7 @@ async function initializeGraphDisplay() {
     var links_filtered = graph.links.filter(linkInCommunity);
 
     $("#sizeID")[0].innerText = clusterSizeDistr[commGroupSize_id].size;
+    $("#numberCommID")[0].innerText = clusterSizeDistr[commGroupSize_id].communities.length;
 
     var num_main_topics = d3.nest()
       .key(function(d){return d.main_topic;})
@@ -151,20 +148,38 @@ async function initializeGraphDisplay() {
       .entries(nodes_filtered);
     $("#main_topicsID")[0].innerText = num_main_topics.length;
 
+    var num_prolific = d3.nest()
+      .key(function(d){return d.prolific;})
+      .rollup(function(d){return d.length;})
+      .entries(nodes_filtered);
+
+    $("#lowProlificID")[0].innerText = 0;
+    $("#mediumProlificID")[0].innerText = 0;
+    $("#highProlificID")[0].innerText = 0;
+
+    for(var i=0; i<num_prolific.length; i++){
+      var prolific = num_prolific[i];
+      switch(prolific.key){
+        case '0':
+          $("#lowProlificID")[0].innerText = prolific.value;
+          break;
+        case '50':
+          $("#mediumProlificID")[0].innerText = prolific.value;
+          break;
+        case '100':
+          $("#highProlificID")[0].innerText = prolific.value;
+          break;
+        default:
+      }
+    }
 
     var data = {
       nodes: nodes_filtered,
       links: links_filtered
     }
-    
-    net = await network(data, net, getGroup, expand);
 
-    // await new Promise((resolve, reject) => {
-    //   net = network(data, net, getGroup, expand);
-    //   resolve();
-    // })
-    // network(data, net, getGroup, expand)
-    //   .then(result => net = result);
+    //net = await network(data, net, getGroup, expand);
+    net = network1(data, net, getGroup, expand);
 
     var r = d3.scaleLog()
       .domain([1, 600])
@@ -226,13 +241,13 @@ async function initializeGraphDisplay() {
 
         var text;
         if(d.id){
-          text = "<b>Id:</b> " + d.id + "<br/>" + "<b>Prolific:</b> " + d.prolific + "<br/>" + "<b>Main topic:</b> " + d.main_topic;
+          text = "<b>Id:</b> " + d.id + "<br/>" + "<b>Prolific:</b> " + prolificsKey[d.prolific] + "<br/>" + "<b>Main topic:</b> " + d.main_topic;
         }else{
           if(isMainTopic){
             text = "<b>Main topic:</b> " + d.main_topic + "<br/>" + "<b>Nodes:</b> " + d.size;
           }
           if($('input:radio[id="prolificID"]')[0].checked){
-            text = "<b>Prolific:</b> " + d.prolific + "<br/>" + "<b>Nodes:</b> " + d.size;
+            text = "<b>Prolific:</b> " + prolificsKey[d.prolific] + "<br/>" + "<b>Nodes:</b> " + d.size;
           }
         }
         div.html(text)  
@@ -253,8 +268,11 @@ async function initializeGraphDisplay() {
           expand[d.prolific] = !expand[d.prolific];
         }
 
-        initializeGraphDisplay()
-          .then(() => initializeGraphSimulation());
+        $('#toastID').toast('show');
+        $("#loaderID").show();
+        setTimeout(()=>{
+          initializeGraphDisplay();
+        }, 1)
 
       })
       .call(d3.drag()
@@ -266,6 +284,8 @@ async function initializeGraphDisplay() {
     // node tooltip
     node.append("title")
         .text(function(d) { return d.id; });
+
+    initializeGraphSimulation();
 }
 
 
@@ -349,7 +369,7 @@ function getGroup(n) {
 
 // constructs the network to visualize
 function network(data, prev, index, expand) {
-  return new Promise((resolve, reject) => {
+  //return new Promise((resolve, reject) => {
       
   expand = expand || {};
   var gm = {},    // group map
@@ -417,8 +437,6 @@ function network(data, prev, index, expand) {
 
   for (i in gm) { gm[i].link_count = 0; }
   
-  progressBar.set(50);
-
   // determine links
   for (k=0; k<data.links.length; ++k) {
     var e = data.links[k],
@@ -435,18 +453,110 @@ function network(data, prev, index, expand) {
     l.size += 1;
   }
   for (i in lm) { links.push(lm[i]); }
-  
-  progressBar.set(100);
 
-  //return {nodes: nodes, links: links};
-    resolve({nodes: nodes, links: links});
-  })
+  //$("#loaderID").hide();
+  $('#toastID').toast('hide');
+  return {nodes: nodes, links: links};
+   // resolve({nodes: nodes, links: links});
+ // })
+}
+
+// constructs the network to visualize
+function network1(data, prev, index, expand) {
+  //return new Promise((resolve, reject) => {
+      
+  expand = expand || {};
+  var gm = {},    // group map
+      nm = {},    // node map
+      lm = {},    // link map
+      gn = {},    // previous group nodes
+      gc = {},    // previous group centroids
+      nodes = [], // output nodes
+      links = []; // output links
+
+  // process previous nodes for reuse or centroid calculation
+  if (prev) {
+    prev.nodes.forEach(function(n) {
+      var i = index(n), o;
+      if (n.size > 0) {
+        gn[i] = n;
+        n.size = 0;
+      } else {
+        o = gc[i] || (gc[i] = {x:0,y:0,count:0});
+        o.x += n.x;
+        o.y += n.y;
+        o.count += 1;
+      }
+    });
+  }
+
+  // determine nodes
+  for (var k=0; k<data.nodes.length; ++k) {
+    var n = data.nodes[k],
+        i = index(n), 
+        l;
+
+        if (isMainTopic){
+          l = gm[i] || (gm[i]=gn[i]) || (gm[i]={main_topic:i, size:0, nodes:[]});
+        } else {
+          l = gm[i] || (gm[i]=gn[i]) || (gm[i]={prolific:i, size:0, nodes:[]});
+        }
+
+    if (expand[i]) {
+      // the node should be directly visible
+      nm[n.id] = nodes.length;
+      nodes.push(n);
+      if (gn[i]) {
+        // place new nodes at cluster location (plus jitter)
+        n.x = gn[i].x + Math.random();
+        n.y = gn[i].y + Math.random();
+      }
+    } else {
+      // the node is part of a collapsed cluster
+      if (l.size == 0) {
+        // if new cluster, add to set and position at centroid of leaf nodes
+        nm[i] = nodes.length;
+        nodes.push(l);
+        if (gc[i]) {
+          l.x = gc[i].x / gc[i].count;
+          l.y = gc[i].y / gc[i].count;
+        }
+      }
+      l.nodes.push(n);
+    }
+    // always count group size as we also use it to tweak the force graph strengths/distances
+    l.size += 1;
+    n.group_data = l;
+  }
+
+  for (i in gm) { gm[i].link_count = 0; }
+  
+  // determine links
+  for (k=0; k<data.links.length; ++k) {
+    var e = data.links[k],
+        u = index(e.source),
+        v = index(e.target);
+    if (u != v) {
+      gm[u].link_count++;
+      gm[v].link_count++;
+    }
+    u = expand[u] ? nm[e.source.id] : nm[u];
+    v = expand[v] ? nm[e.target.id] : nm[v];
+    var i = (u<v ? u+"|"+v : v+"|"+u),
+        l = lm[i] || (lm[i] = {source:u, target:v, size:0});
+    l.size += 1;
+  }
+  for (i in lm) { links.push(lm[i]); }
+
+  //$("#loaderID").hide();
+  $('#toastID').toast('hide');
+  return {nodes: nodes, links: links};
+   // resolve({nodes: nodes, links: links});
+ // })
 }
 
 
-$(document).ready(function(){
-  progressBar = document.getElementById('progressBarID').ldBar;
-  
+$(document).ready(function(){  
   $('input[type=range][id=commSizeRange]').change(function(){
     commGroupSize_id = $(this).val();
     commGroup_id = 0;
@@ -460,21 +570,25 @@ $(document).ready(function(){
     commRange.max = count - 1;
     $("#commRangeMax")[0].innerText = count;
 
-    progressBar.set(0);
-    $("#progressBarID").show();
-    document.getElementById("svgID").style.visibility = "hidden";
-    //$("#svgID").hide();
-
     expand = {};
-    initializeGraphDisplay()
-      .then(() => initializeGraphSimulation());
+    $('#toastID').toast('show');
+    $("#loaderID").show();
+    setTimeout(()=>{
+      initializeGraphDisplay();
+    }, 50)
+
+    //initializeGraphDisplay();
+      //.then(() => initializeGraphSimulation());
   })
 
   $('input[type=range][id=commRange]').change(function(){
     commGroup_id = $(this).val();
     expand = {};
-    initializeGraphDisplay()
-      .then(() => initializeGraphSimulation());
+    $('#toastID').toast('show');
+    $("#loaderID").show();
+    setTimeout(()=>{
+      initializeGraphDisplay();
+    }, 1)
   })
 
   $('input[type=range][id=commSizeRange]').on("input", function(){

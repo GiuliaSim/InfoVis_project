@@ -26,7 +26,6 @@ var prolificsKey = {
 	0 : "Low"
 };
 
-
 var colorProlific = {
 	100 : "#2a4f6e",
 	50 : "#528cbc",
@@ -261,10 +260,16 @@ d3.text("data/out-communities-SToClustering.txt", function(error, text) {
  			//communityLayout.js default checked
  			//visualizeCommunities();
 
+    		$('#toastID').toast('show');
+    		$("#loaderID").show();
+ 			setTimeout(()=>{
+ 				initializeGraphDisplay();
+			}, 1);
+
  			//d3forcegraph.js
  			//createSelectSize();
- 			initializeGraphDisplay()
-      			.then(() => initializeGraphSimulation());
+ 			//initializeGraphDisplay();
+      			//.then(() => initializeGraphSimulation());
     });
   });
 });
@@ -313,7 +318,6 @@ d3.select(window).on("resize", function(){
 });
 
 $(document).ready(function(){
-	$("#progressBarID").hide();
 
 	$('input[type=radio][name=typeAttribute]').change(function(){
 		if($('input:radio[id="mainTopicID"]')[0].checked){
@@ -324,8 +328,11 @@ $(document).ready(function(){
 		}
 		if(communityID){
 			expand = {};
-		    initializeGraphDisplay()
-      			.then(() => initializeGraphSimulation());
+    		$('#toastID').toast('show');
+    		$("#loaderID").show();
+			setTimeout(()=>{
+ 				initializeGraphDisplay();
+			}, 1);
 	    }
     });
 
