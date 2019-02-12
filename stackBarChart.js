@@ -85,6 +85,11 @@ function initializeDisplayStackBar() {
           data["total"] = total;
           return JSON.stringify(data);
       })
+      .attr("id", function(d){
+        var size = d.data.size;
+        var key = d.key;
+        return "rect" + size + "_"+ key;
+      })
       .attr("width", xStackBar.bandwidth())
       .attr("x", function(d) {
           return xStackBar(d.data.size);
@@ -94,26 +99,89 @@ function initializeDisplayStackBar() {
       })
       .attr("height", function(d) {
           return yStackBar(d[0]) - yStackBar(d[1]);
-      })
-      .on("mouseover", function(d) { 
-        d3.select(this).style("fill", "#315b7d");   
+      });
+      // .on("mouseover", function(d) { 
+      //   d3.select(this).style("fill", "#315b7d");   
+      //   div.transition()    
+      //       .duration(200)    
+      //       .style("opacity", .9); 
+      //   var high = d.data[100];  
+      //   var medium = d.data[50];  
+      //   var low = d.data[0];  
+      //   var size = d.data.size;  
+      //   div.html("<b>High:</b> " + high + "<br/>" + "<b>Medium:</b> " + medium + "<br/><b>Low:</b> " + low+ "<br/><b>Size:</b> " + size)  
+      //       .style("left", (d3.event.pageX-20) + "px")   
+      //       .style("top", (d3.event.pageY-120) + "px");  
+      //   })          
+      //   .on("mouseout", function(d) {   
+      //       d3.select(this).style("fill", "steelblue");
+      //       div.transition()    
+      //           .duration(500)    
+      //           .style("opacity", 0);
+      //   });
+
+    var areas = svg.append("g")
+    .selectAll(".area")
+    .data(dataProlific_filtered)
+    .enter()
+    .append("rect")
+      .attr("width", xStackBar.bandwidth())
+      .attr("height", height)
+      .attr("x", function(d) { return xStackBar(d.size); })
+      .attr("y", 0)
+      .attr("fill", "#000")
+      .attr("fill-opacity", 0)
+      .on("mouseover", function(d) {
+        var size = d.size;
+        var high = d[100];  
+        var medium = d[50];  
+        var low = d[0]; 
+        var rect1 = d3.select("#rect"+size+"_0");
+        var rect2 = d3.select("#rect"+size+"_50");
+        var rect3 = d3.select("#rect"+size+"_100");
+        rect1.style("fill", "#315b7d");   
+        rect2.style("fill", "#315b7d");   
+        rect3.style("fill", "#315b7d");   
         div.transition()    
-            .duration(200)    
-            .style("opacity", .9); 
-        var high = d.data[100];  
-        var medium = d.data[50];  
-        var low = d.data[0];  
-        var size = d.data.size;  
-        div.html("<b>High:</b> " + high + "<br/>" + "<b>Medium:</b> " + medium + "<br/><b>Low:</b> " + low+ "<br/><b>Size:</b> " + size)  
-            .style("left", (d3.event.pageX-20) + "px")   
-            .style("top", (d3.event.pageY-120) + "px");  
-        })          
-    .on("mouseout", function(d) {   
-        d3.select(this).style("fill", "steelblue");
+              .duration(200)    
+              .style("opacity", .9);
+
+        // div.html("<b>High:</b> " + high + "<br/>" + "<b>Medium:</b> " + medium + "<br/><b>Low:</b> " + low+ "<br/><b>Size:</b> " + size)  
+        //     .style("left", (d3.event.pageX-20) + "px")   
+        //     .style("top", (d3.event.pageY-120) + "px");  
+
+        div.html('<p class="text-center font-italic">Number of nodes group by prolific attribute</p>'
+        + '<table class="table table-sm"><tbody>'
+        + '  <tr><th scope="row">Community Size</th><td>'+ size +'</td></tr>'
+        + '    <tr><th scope="row">High</th><td>'+ high +'</td></tr>'
+        + '    <tr><th scope="row">Medium</th><td>'+ medium +'</td></tr>'
+        + '    <tr><th scope="row">Low</th><td>'+ low +'</td></tr>'
+        + '</tbody></table>'
+        + '<i></i>');
+
+        var sizeTooltip = d3.select("#tooltipId").node().getBoundingClientRect();
+        var sizeSVG = d3.select("#svgID").node().getBoundingClientRect();
+        var sizeRect3 = d3.select("#rect"+size+"_100").node().getBoundingClientRect();
+        var w = window.pageYOffset;
+        var tooltipX = sizeSVG.left + xStackBar(size) + (xStackBar.bandwidth()/2) - (sizeTooltip.width/2);
+        var tooltipY = w + sizeRect3.y - sizeTooltip.height - 10;
+        
+        div.style("left", tooltipX + "px")   
+            .style("top", tooltipY + "px");  
+      })          
+      .on("mouseout", function(d) {  
+        var size = d.size;
+        var rect1 = d3.select("#rect"+size+"_0");
+        var rect2 = d3.select("#rect"+size+"_50");
+        var rect3 = d3.select("#rect"+size+"_100");
+        rect1.style("fill", "steelblue");
+        rect2.style("fill", "steelblue");
+        rect3.style("fill", "steelblue");
+
         div.transition()    
             .duration(500)    
             .style("opacity", 0); 
-    });
+      });
 
   // add the x Axis
   svg.append("g")

@@ -38,6 +38,7 @@ function boxPlot() {
   	.data(main_topics_filtered)
   	.enter()
     .append("line")
+      .attr("id",function(datum){return "line" + datum.key})
 	    .attr("x1", function(datum) { return xScale(datum.key) + (xScale.bandwidth()/2); })
 	    .attr("y1", function(datum) { return yScale(datum.value.main_topics_common.min); })
 	    .attr("x2", function(datum) { return xScale(datum.key) + (xScale.bandwidth()/2); })
@@ -90,9 +91,10 @@ function boxPlot() {
         var q75 = values.quartile75;
 
 
-        div.html('<p class="text-center font-italic">Size '+ size +'</p>'
+        div.html('<p class="text-center font-italic">Number of nodes with common main topic</p>'
         + '<table class="table table-sm"><tbody>'
-        + '  <tr><th scope="row">Max</th><td>'+ max +'</td></tr>'
+        + '  <tr><th scope="row">Community Size</th><td>'+ size +'</td></tr>'
+        + '    <tr><th scope="row">Max</th><td>'+ max +'</td></tr>'
         + '    <tr><th scope="row">Third Quartile</th><td>'+ q75 +'</td></tr>'
         + '    <tr><th scope="row">Median</th><td>'+ q50 +'</td></tr>'
         + '    <tr><th scope="row">First Quartile</th><td>'+ q25 +'</td></tr>'
@@ -109,10 +111,11 @@ function boxPlot() {
         //   + "<i></i>");
 
         var sizeTooltip = d3.select("#tooltipId").node().getBoundingClientRect();
-        var sizeArea = d3.select(this).node().getBoundingClientRect();
-        var tooltipX = d3.event.pageX - (sizeTooltip.width/2);
-        //var tooltipY = sizeArea.top - sizeTooltip.height;
-        var tooltipY = d3.event.pageY - sizeTooltip.height - 40;
+        var sizeSVG = d3.select("#svgID").node().getBoundingClientRect();
+        var sizeLine = d3.select("#line" + d.key).node().getBoundingClientRect();
+        var w = window.pageYOffset;
+        var tooltipX = sizeSVG.left + xScale(d.key) + (xScale.bandwidth()/2) - (sizeTooltip.width/2);
+        var tooltipY = w + sizeLine.y - sizeTooltip.height - 10;
         div
           .style("left", tooltipX + "px")   
           .style("top", tooltipY + "px");
