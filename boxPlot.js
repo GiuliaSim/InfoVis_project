@@ -23,6 +23,15 @@ function boxPlot() {
   	.domain([globalmin, globalmax])
   	.range([height, 0]);
 
+  // add the Y gridlines
+  svg.append("g")     
+      .attr("transform", "translate(" + margin.left + ",0)")
+      .attr("class", "grid")
+      .call(make_y_gridlines()
+          .tickSize(-width)
+          .tickFormat("")
+      )
+
   var colorScale = d3.scaleSequential(d3["interpolateRainbow"])
     .domain(sizes);
   // Setup a color scale for filling each box
@@ -174,15 +183,6 @@ function boxPlot() {
   // Move the left axis over 25 pixels, and the top axis over 35 pixels
   //var axisY = svg.append("g").attr("transform", "translate(25,0)");
   //var axisX = svg.append("g").attr("transform", "translate(35,0)");
-
-  // add the Y gridlines
-  svg.append("g")     
-      .attr("transform", "translate(" + margin.left + ",0)")
-      .attr("class", "grid")
-      .call(make_y_gridlines()
-          .tickSize(-width)
-          .tickFormat("")
-      )
 
   // add the x Axis
   svg.append("g")

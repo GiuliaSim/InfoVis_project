@@ -46,6 +46,15 @@ function updateDataStackBar(){
 function initializeDisplayStackBar() { 
   var div = d3.select("#tooltipId");
 
+  // add the Y gridlines
+  svg.append("g")     
+      .attr("transform", "translate(" + margin.left + ",0)")
+      .attr("class", "grid")
+      .call(make_yStackBar_gridlines()
+          .tickSize(-width)
+          .tickFormat("")
+      )
+
   var translateX = width - margin.right;
   var legend = svg.append("g")
     .attr("class","legend")
@@ -219,6 +228,11 @@ function updateStackBar(){
   width = +svg.node().getBoundingClientRect().width - margin.left - margin.right,
   height = +svg.node().getBoundingClientRect().height - margin.top - margin.bottom;
   stackBar();
+}
+
+// gridlines in y axis function
+function make_yStackBar_gridlines() {   
+    return d3.axisLeft(yStackBar);
 }
 
 

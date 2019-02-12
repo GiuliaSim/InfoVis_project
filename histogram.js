@@ -1,11 +1,12 @@
 // A formatter for counts.
 var formatCount = d3.format(",.0f");
+var yHistagram;
 
 function histogram(){
   //var g = svg.append("g")
     //.attr("transform", "translate(0," + margin.top + ")");
 
-  var y = d3.scalePow().exponent(0.5)
+  yHistagram = d3.scalePow().exponent(0.5)
             .domain([0, num_community])
             .range([height, 0]);
 
@@ -21,6 +22,15 @@ function histogram(){
       .thresholds(x.ticks(100));
 
   var map = communities.map(function(d){return d.length});
+
+  // add the Y gridlines
+  svg.append("g")     
+      .attr("transform", "translate(" + margin.left + ",0)")
+      .attr("class", "grid")
+      .call(make_yHistagram_gridlines()
+          .tickSize(-width)
+          .tickFormat("")
+      )
     
   // group the data for the bars
   var bins = histogram(map);
@@ -29,7 +39,7 @@ function histogram(){
     .data(bins)
   .enter().append("g")
     .attr("class", "bar")
-    .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; });
+    .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + yHistagram(d.length) + ")"; });
 
 
   bar.append("rect")
@@ -39,7 +49,7 @@ function histogram(){
       var value = diff > 0 ? diff - 0.8 : diff;
       return value; 
     })
-    .attr("height", function(d) { return height - y(d.length); })
+    .attr("height", function(d) { return height - yHistagram(d.length); })
     .on("mouseover", function(d) { 
         d3.select(this).style("fill", "#315b7d");   
         div.transition()    
@@ -62,7 +72,6 @@ function histogram(){
     //bar.append("title")
         //.text(function(d) { var len = d.length > 0 ? formatCount(d.length) : ""; return len; });
 
-
     // add the x Axis
     svg.append("g")
         .attr("transform", "translate("+ 0 +"," + height + ")")
@@ -79,7 +88,7 @@ function histogram(){
     // add the y Axis
     svg.append("g")
         .attr("transform", "translate("+ margin.left +"," + 0 + ")")
-        .call(d3.axisLeft(y))
+        .call(d3.axisLeft(yHistagram))
         .append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", 15 - (margin.left))
@@ -96,4 +105,9 @@ function updateHistogram(){
   width = +svg.node().getBoundingClientRect().width - margin.left - margin.right,
   height = +svg.node().getBoundingClientRect().height - margin.top - margin.bottom;
   histogram();
+}
+
+// gridlines in y axis function
+function make_yHistagram_gridlines() {   
+    return d3.axisLeft(yHistagram);
 }
