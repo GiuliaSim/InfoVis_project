@@ -9,7 +9,8 @@ var net, data,
 var linkg = svg.append("g"),
     nodeg = svg.append("g"),
     link,
-    node;
+    node,
+    nodes_filtered = [];
 
 var div = d3.select("#tooltipId");
 
@@ -136,42 +137,10 @@ function initializeGraphDisplay() {
     //   .filter(function(d){ return d.size == commGroupSize_id})
     //   .flatMap(function(d){return d.nodes});
     // var links_filtered = graph.links.filter(function(d){return linkInCommunity(d,nodes_filtered)});
-    var nodes_filtered = clusterSizeDistr[commGroupSize_id].communities[commGroup_id].nodes;
+    nodes_filtered = clusterSizeDistr[commGroupSize_id].communities[commGroup_id].nodes;
     var links_filtered = graph.links.filter(linkInCommunity);
 
-    $("#sizeID")[0].innerText = clusterSizeDistr[commGroupSize_id].size;
-    $("#numberCommID")[0].innerText = clusterSizeDistr[commGroupSize_id].communities.length;
-
-    var num_main_topics = d3.nest()
-      .key(function(d){return d.main_topic;})
-      .rollup(function(d){return d.length;})
-      .entries(nodes_filtered);
-    $("#main_topicsID")[0].innerText = num_main_topics.length;
-
-    var num_prolific = d3.nest()
-      .key(function(d){return d.prolific;})
-      .rollup(function(d){return d.length;})
-      .entries(nodes_filtered);
-
-    $("#lowProlificID")[0].innerText = 0;
-    $("#mediumProlificID")[0].innerText = 0;
-    $("#highProlificID")[0].innerText = 0;
-
-    for(var i=0; i<num_prolific.length; i++){
-      var prolific = num_prolific[i];
-      switch(prolific.key){
-        case '0':
-          $("#lowProlificID")[0].innerText = prolific.value;
-          break;
-        case '50':
-          $("#mediumProlificID")[0].innerText = prolific.value;
-          break;
-        case '100':
-          $("#highProlificID")[0].innerText = prolific.value;
-          break;
-        default:
-      }
-    }
+    updateDetail();
 
     var data = {
       nodes: nodes_filtered,
@@ -612,3 +581,72 @@ $(document).ready(function(){
     commLabel.style.left = (bulletPosition * (widthCard - 70)) + "px";
   })
 })
+
+function updateDetail(){
+  var size = clusterSizeDistr[commGroupSize_id].size;
+  $("#sizeID")[0].innerText = size;
+  $("#numberCommID")[0].innerText = clusterSizeDistr[commGroupSize_id].communities.length;
+
+  var num_main_topics = d3.nest()
+    .key(function(d){return d.main_topic;})
+    .rollup(function(d){return d.length;})
+    .entries(nodes_filtered);
+  $("#main_topicsID")[0].innerText = num_main_topics.length;
+
+  var num_prolific = d3.nest()
+    .key(function(d){return d.prolific;})
+    .rollup(function(d){return d.length;})
+    .entries(nodes_filtered);
+
+  $("#lowProlificID")[0].innerText = 0;
+  $("#mediumProlificID")[0].innerText = 0;
+  $("#highProlificID")[0].innerText = 0;
+  $("#lowProlificPercID")[0].innerText = '-';
+  $("#mediumProlificPercID")[0].innerText = '-';
+  $("#highProlificPercID")[0].innerText = '-';
+
+  for(var i=0; i<num_prolific.length; i++){
+    var prolific = num_prolific[i];
+    var value = prolific.value;
+    var perc = value / size;
+    switch(prolific.key){
+      case '0':
+        $("#lowProlificID")[0].innerText = value;
+        $("#lowProlificPercID")[0].innerText = d3.format(".0%")(perc);
+        break;
+      case '50':
+        $("#mediumProlificID")[0].innerText = value;
+        $("#mediumProlificPercID")[0].innerText = d3.format(".0%")(perc);
+        break;
+      case '100':
+        $("#highProlificID")[0].innerText = value;
+        $("#highProlificPercID")[0].innerText = d3.format(".0%")(perc);
+        break;
+      default:
+    }
+  }
+
+  var svgPieProlific = d3.select("#prolificPieChartID"),
+    widthPieProlific = +svgPieProlific.node().getBoundingClientRect().width - 3,
+    heightPieProlific = +svgPieProlific.node().getBoundingClientRect().height - 3,
+    radiusPieProlific = Math.min(widthPieProlific, heightPieProlific) / 2,
+    gPieProlific = svgPieProlific.append("g")
+      .attr("transform", "translate(" + widthPieProlific / 2 + "," + heightPieProlific / 2 + ")");
+
+  var pie = d3.pie()
+    .value(function(d){return d.value});
+  var arc = d3.arc()
+    .innerRadius(0)
+    .outerRadius(radiusPieProlific);
+  var arcs = gPieProlific.selectAll("arc")
+    .data(pie(num_prolific))
+    .enter()
+    .append("g")
+    .attr("class", "arc");
+  arcs.append("path")
+    .attr("class", "pieProlific")
+    .attr("fill", function(d){
+      return colorProlific[d.data.key];
+    })
+    .attr("d", arc);
+}

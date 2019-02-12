@@ -304,6 +304,8 @@ function updateAll(){
 
 // update size-related forces
 d3.select(window).on("resize", function(){
+	d3.select("#prolificPieChartID").selectAll("*").remove();
+	updateDetail();
 	width = +svg.node().getBoundingClientRect().width - margin.left - margin.right,
     height = +svg.node().getBoundingClientRect().height - margin.top - margin.bottom;
 	if(communityID){

@@ -144,7 +144,8 @@ function initializeDisplayStackBar() {
         var size = d.size;
         var high = d[100];  
         var medium = d[50];  
-        var low = d[0]; 
+        var low = d[0];
+        var total = Number(low) + Number(medium) + Number(high);
         var rect1 = d3.select("#rect"+size+"_0");
         var rect2 = d3.select("#rect"+size+"_50");
         var rect3 = d3.select("#rect"+size+"_100");
@@ -157,7 +158,7 @@ function initializeDisplayStackBar() {
 
         // div.html("<b>High:</b> " + high + "<br/>" + "<b>Medium:</b> " + medium + "<br/><b>Low:</b> " + low+ "<br/><b>Size:</b> " + size)  
         //     .style("left", (d3.event.pageX-20) + "px")   
-        //     .style("top", (d3.event.pageY-120) + "px");  
+        //     .style("top", (d3.event.pageY-120) + "px");
 
         div.html('<p class="text-center font-italic">Number of nodes group by prolific attribute</p>'
         + '<table class="table table-sm"><tbody>'
@@ -165,6 +166,7 @@ function initializeDisplayStackBar() {
         + '    <tr><th scope="row">High</th><td>'+ high +'</td></tr>'
         + '    <tr><th scope="row">Medium</th><td>'+ medium +'</td></tr>'
         + '    <tr><th scope="row">Low</th><td>'+ low +'</td></tr>'
+        + '    <tr><th scope="row">Total</th><td>'+ total +'</td></tr>'
         + '</tbody></table>'
         + '<i></i>');
 

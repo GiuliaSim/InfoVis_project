@@ -14,7 +14,7 @@ html, body {
 			margin:auto;
 			display:block;
 			flex-basis: 100%;
-  			min-width: 200px;
+  			/*min-width: 200px;*/
 		}
 		.circle-overlay {
 			font-size: 16px;
@@ -200,5 +200,22 @@ html, body {
 
 		.table-label{
 			font-size: 14px !important;
-			
 		}
+
+		.legenda{
+		    margin-bottom:76px;
+		    width:100%;
+		    height: 100%;
+		}
+		.legenda tr{    
+			border-bottom:1px solid grey !important;
+		}
+		.legenda tr:first-child{    
+			border-top:1px solid grey !important; 
+		}
+		.legendFreq, .legendPerc{
+		    align:right;
+		    width:50px;
+		}
+
+		path.pieProlific {  stroke: #fff; }

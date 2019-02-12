@@ -117,7 +117,7 @@
 						      <th class="table-label" scope="row">Number of main topics</th>
 						      <td id="main_topicsID"></td>
 						    </tr>
-						    <tr>
+						    <!-- <tr>
 						      <th class="table-label" scope="row">Low prolific</th>
 						      <td id="lowProlificID">0</td>
 						    </tr>
@@ -128,9 +128,36 @@
 							<tr>
 						      <th class="table-label" scope="row">High prolific</th>
 						      <td id="highProlificID">0</td>
-						    </tr>
+						    </tr> -->
 						  </tbody>
 						</table>
+						<p class="table-label ml-1"><b>Number of prolific </b></p>
+						<svg id="prolificPieChartID" width="100%" height="200" class="m-3"></svg>
+						<div class="row">
+							<table class="legenda m-3">
+								<tbody>
+									<tr>
+										<td><svg width="16" height="16"><rect width="16" height="16" fill="#a7c4dd"></rect></svg></td>
+										<td>low</td>
+										<td id="lowProlificID" class="legendFreq">0</td>
+										<td id="lowProlificPercID" class="legendPerc">-</td>
+									</tr>
+									<tr>
+										<td><svg width="16" height="16"><rect width="16" height="16" fill="#528cbc"></rect></svg></td>
+										<td>mid</td>
+										<td id="mediumProlificID" class="legendFreq">0</td>
+										<td id="mediumProlificPercID" class="legendPerc">-</td>
+									</tr>
+									<tr>
+										<td><svg width="16" height="16"><rect width="16" height="16" fill="#2a4f6e"></rect></svg></td>
+										<td>high</td>
+										<td id="highProlificID" class="legendFreq">0</td>
+										<td id="highProlificPercID" class="legendPerc">-</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+
 					</div>
 				</div>
 			</div>
