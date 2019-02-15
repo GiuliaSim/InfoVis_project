@@ -41,14 +41,15 @@ var slider, svgSlider, sliderRange;
 var scales = {
         sqrt:   d3.scalePow().exponent(0.5),
         linear: d3.scaleLinear(),
-        power2: d3.scalePow().exponent(2)
+        power2: d3.scalePow().exponent(2),
         log: d3.scaleLog()
     };
 var scaleType = $("input[name='scaleOptions']:checked").val();
 var from = 0;
 var to = 80;
+var xScaleFrom = from==0 ? 1e-6 : from;
 var x = scales[scaleType]
-    .domain([from, to])
+    .domain([xScaleFrom, to])
     .rangeRound([margin.left, width+margin.left]);
 
 d3.text("data/out-communities-SToClustering.txt", function(error, text) {
@@ -406,8 +407,9 @@ function changeRange(){
 
 function updateAll(){
 	scaleType = $("input[name='scaleOptions']:checked").val();
+	xScaleFrom = from==0 ? 1e-6 : from;
 	x = scales[scaleType]
-	    .domain([from, to])
+	    .domain([xScaleFrom, to])
 	    .rangeRound([margin.left, width+margin.left]);
 
 	if($('input:radio[id="beeswarmID"]')[0].checked){
