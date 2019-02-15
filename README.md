@@ -33,6 +33,10 @@ Il grafico *Stacked Bar* mostra una distribuzione dei valori dell'attributo *Pro
 ### Box Plot
 Il *Box Plot* consente di visualizzare la distribuzione dei valori dell'attributo *Main topic*, propri dei nodi delle comunità. Il grafico mostra, per ogni possibile dimensione dei cluster, i dettagli relativi al numero dei nodi che condividono lo stesso *Main topic*, quali il minimo, il primo quartile, la mediana, il terzo quartile e il massimo.
 
+## Osservazioni
+La realizzazione di strumenti grafici che consentono la visualizzazione dei dettagli di un attributed graph clusterizzato ha permesso una lettura analitica delle caratteristiche della distribuzione degli attributi dei nodi e delle comunità. 
+Ad esempio, per quanto riguarda le informazioni relative all'attributo *Prolific*, nello *Stacked bar* è possibile osservare che gli autori appartenenti a comunità di grandi dimensioni hanno pubblicato un numero elevato di paper, mentre i nodi che fanno parte di cluster con dimensioni minori presentano un numero di pubblicazioni considerevolmente più basso.
+Per quanto riguarda il *Main topic*, dal *Box Plot* si osserva che, all'aumentare della dimensione dei cluster, il massimo numero di nodi che condividono l'attributo cresce notevolmente, mentre il minimo resta pressocché invariato.
 
 ## Librerie utilizzate
 D3.js
