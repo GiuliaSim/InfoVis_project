@@ -4,7 +4,7 @@ Il progetto riguardante la visualizzazione di comunità negli attributed graphs 
 ## Il dataset DBLP
 La rete sulla quale sono stati generate le comunità non sovrapposte è una rappresentazione delle connessioni tra autori di pubblicazioni scientifiche. 
 
-* I nodi del grafo presentano due tipi di attributi, *Prolific* (quantitativo), che esprime il numero di paper scritti da una persona, e *Main topic* (categorico), che identifica la parola chiave più frequente nelle pubblicazioni di un autore.
+* I nodi del grafo presentano due tipi di attributi, *Prolific* (quantitativo), che esprime il numero di paper scritti da una persona, e *Main topic* (categorico), che identifica la parola chiave più frequente nelle pubblicazioni di un autore. I valori dell'attributo *Prolific* sono tre (Low, Medium, High) e i valori di *Main topic* sono 99.
 
 * Gli archi connettono due autori che hanno pubblicato almeno un paper insieme.
 
@@ -28,5 +28,16 @@ E' inoltre possibile esplorare i dettagli di ogni barra del grafico.
 Gli attributi dei nodi delle comunità vengono visualizzati attraverso due grafici, uno relativo all'attributo *Prolific* e l'altro riguarante l'attributo *Main Topic*.
 
 ### Stacked Bar
-Il grafico *Stacked Bar* mostra una distribuzione degli attributi *Prolific* presenti nelle comunità raggrupate per una determinata dimensione.
+Il grafico *Stacked Bar* mostra una distribuzione dei valori dell'attributo *Prolific* presenti nelle comunità. Per ogni barra del grafico, l'ascissa rappresenta la dimensione dei cluster, l'ordinata indica il numero di nodi raggruppati secondo l'attributo. I tre colori presenti nel grafico identificano i valori di *Prolific*.
 
+### Box Plot
+
+Il *Box Plot* consente di visualizzare la distribuzione dei valori dell'attributo *Main topic* propri dei nodi dei cluster. Il grafico mostra, per ogni possibile dimensione delle comunità, i dettagli relativi al numero dei nodi che condividono lo stesso *Main topic*, ovvero il minimo, il primo quartile, la mediana, il terzo quartile e il massimo.
+
+
+## Librerie utilizzate
+D3.js
+
+## Autori 
+* Dalila Rosati
+* Giulia Simonelli
