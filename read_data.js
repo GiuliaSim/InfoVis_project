@@ -42,6 +42,7 @@ var scales = {
         sqrt:   d3.scalePow().exponent(0.5),
         linear: d3.scaleLinear(),
         power2: d3.scalePow().exponent(2)
+        log: d3.scaleLog()
     };
 var scaleType = $("input[name='scaleOptions']:checked").val();
 var from = 0;
