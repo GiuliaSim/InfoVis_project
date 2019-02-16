@@ -8,6 +8,12 @@ La rete a partire dalla quale sono state generate le comunità non sovrapposte �
 
 * Gli archi connettono due autori che hanno pubblicato almeno un paper insieme.
 
+## Istruzioni
+Per visualizzare la rete di co-autori di paper da noi implementata e i relativi grafici riguardanti i dettagli e le analisi delle statistiche, sono di seguito riportate le seguenti istruzioni:
+* chiudere tutte le pagine chrome;
+* eseguire sul terminale open /Applications/Google\ Chrome.app --args --allow-file-access-from-files (mac OS) o chrome --alow-file-access-from-files (windows);
+* aprire con Chrome i file con estensione html.
+
 ## Visualizzazione ed esplorazione del grafo
 La prima parte del progetto è dedicata alla visualizzazione del grafo di co-autori e consente all'utente di esplorare i cluster, i nodi che li compongono e i loro attributi.
 L'utente può selezionare la comunità che intende visualizzare, scegliendo il numero dei nodi del cluster e l'identificativo di una community di quella dimensione.
