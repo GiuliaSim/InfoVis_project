@@ -39,7 +39,10 @@ Ad esempio, per quanto riguarda le informazioni relative all'attributo *Prolific
 Per quanto riguarda il *Main topic*, dal *Box Plot* si osserva che, all'aumentare della dimensione dei cluster, il massimo numero di nodi che condividono l'attributo cresce notevolmente, mentre il minimo resta pressocché invariato.
 
 ## Librerie utilizzate
-D3.js
+* D3.js
+* jQuery
+* Bootstrap
+
 
 ## Autori 
 * Dalila Rosati
