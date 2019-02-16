@@ -11,7 +11,7 @@ La rete a partire dalla quale sono state generate le comunit√† non sovrapposte √
 ## Istruzioni
 Per visualizzare la rete di co-autori di paper da noi implementata e i relativi grafici riguardanti i dettagli e le analisi delle statistiche, sono di seguito riportate le seguenti istruzioni:
 * chiudere tutte le pagine Chrome;
-* eseguire sul terminale open /*path*\ Chrome.app --args --allow-file-access-from-files (mac OS) oppure *path* --alow-file-access-from-files (Windows);
+* eseguire sul terminale open /*path*\ Chrome.app --args --allow-file-access-from-files (mac OS) oppure /*path*/ chrome --alow-file-access-from-files (Windows);
 * aprire con Chrome i file con estensione html.
 
 ## Visualizzazione ed esplorazione del grafo
